@@ -1,3 +1,5 @@
+import { useState, useRef } from "react";
+
 const common = {
   fill: 'none',
   stroke: 'currentColor',
@@ -49,5 +51,122 @@ export function ChevronRightIcon(props) {
     <svg viewBox="0 0 24 24" width="16" height="16" {...common} {...props}>
       <path d="m9 6 6 6-6 6" />
     </svg>
+  );
+}
+export default function VoiceRecorder() {
+  //Keep tracks when the mic is recording and when it stopped
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState("");
+  //Keeps the MediaRecorder instance between renders without causing the component to re-render whenever the recorder changes.
+  const mediaRecorderRef = useRef(null);
+  //Stores recorded audio chunks before they're combined into a single audio file.
+  const audioChunksRef = useRef([]);
+
+  // Format seconds into mm:ss
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  //starts recording the audio
+  const startRecording = async () => {
+    try {
+      try {
+        //Request access to the microphone.
+        //The browser will show a permission prompt the first time.
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+        //A MediaRecorder instance that'll record the audio
+        const mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorderRef.current = mediaRecorder;
+
+        audioChunksRef.current = [];
+
+        // MediaRecorder calls this whenever a new piece of audio is available after recording
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+        setAudioURL("");
+      } catch (error) {
+        console.error("Error starting recording:", error);
+      }
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: mediaRecorder.mimeType
+        });
+      };
+      const stopRecording = async () => {
+        //Combine all the recorded audio chunks into one Blob.
+        // A Blob is essentially a collection of binary data that
+        // the browser can treat like a file.
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm"
+        });
+      };
+      // without uploading the audio anywhere.
+      const url = URL.createObjectURL(audioBlob);
+
+      // Save the URL in React state so the audio player can use it.
+      setAudioURL(url);
+
+      // Stop every microphone track.
+      stream.getTracks().forEach((track) => track.stop());
+
+      // Begin collecting microphone data.
+      recorder.start();
+
+      // Update the UI to show that recording has started.
+      setIsRecording(true);
+    }
+    catch (error) {
+      console.error("Could not access microphone:", error);
+    }
+  };
+
+  // Stops the current recording.
+  const stopRecording = () => {
+    const recorder = mediaRecorderRef.current;
+
+    // Make sure a recorder exists and is actually recording
+    // before attempting to stop it.
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+
+      // Immediately update the UI so the button changes back
+      // to the "Start Recording" state.
+      setIsRecording(false);
+    }
+  };
+
+  return (
+    <div>
+      {/*
+        We use one button for both actions.
+        When recording is inactive it starts recording.
+        When recording is active it stops recording.
+      */}
+      <button onClick={isRecording ? stopRecording : startRecording}>
+        {isRecording ? "Stop Recording" : "Start Recording"}
+      </button>
+
+      {/*
+        Only show the audio player after we have successfully
+        created a playable URL from a recording.
+      */}
+      {audioURL && (
+        <audio controls src={audioURL}>
+          Your browser does not support audio playback.
+        </audio>
+      )}
+    </div>
   );
 }

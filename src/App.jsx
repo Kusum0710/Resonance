@@ -1,14 +1,24 @@
 import { useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import TimelineScreen from './screens/TimelineScreen';
+import VoiceRecorder from "./components/icons";
 import './App.css';
 
 function App() {
   const [screen, setScreen] = useState('home');
+  const [showRecorder, setShowRecorder] = useState(false);
 
   const handleStartTalking = () => {
-    // Hook point for the recording flow (mic permission + capture).
-    console.log('Start talking pressed');
+    setShowRecorder(true);
+  };
+
+  const handleRecorderClose = () => {
+    setShowRecorder(false);
+  };
+
+  const handleRecorderSave = (audioURL) => {
+    // TODO: persist the recording (localStorage, IndexedDB, etc.)
+    console.log('Recording saved:', audioURL);
   };
 
   const handleOpenSession = (sessionId) => {
@@ -21,7 +31,14 @@ function App() {
   }
 
   // 'settings' and any other tab fall back to Home until those screens exist.
-  return <HomeScreen onStartTalking={handleStartTalking} onNavChange={setScreen} />;
+  return (
+    <>
+      <HomeScreen onStartTalking={handleStartTalking} onNavChange={setScreen} />
+      {showRecorder && (
+        <VoiceRecorder onClose={handleRecorderClose} onSave={handleRecorderSave} />
+      )}
+    </>
+  );
 }
 
 export default App;
