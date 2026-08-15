@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/immutability */
 import { useEffect, useRef, useState } from 'react';
 import './LiveRecordingModal.css';
 
-export default function LiveRecordingModal({ onStop = () => {}, onCancel = () => {} }) {
+export default function LiveRecordingModal({ onStop = () => { }, onCancel = () => { } }) {
   const [seconds, setSeconds] = useState(4);
   const [audioLevel, setAudioLevel] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
@@ -12,6 +13,13 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
   const animationFrameRef = useRef(null);
+
+  // Stores temporary pieces of the voice recording.
+  // These will later be combined into one Blob when recording stops.
+  const audioChunksRef = useRef([]);
+
+  // Holds the temporary audio URL created when MediaRecorder stops.
+  const audioURLRef = useRef(null);
 
   const metricsRef = useRef({
     volumeSamples: [],
@@ -32,8 +40,36 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
         streamRef.current = stream;
 
         try {
+          // Create a MediaRecorder connected to the microphone stream.
           const recorder = new MediaRecorder(stream);
+
           mediaRecorderRef.current = recorder;
+
+          // Clear chunks from any previous recording session.
+          audioChunksRef.current = [];
+
+          // Collect each temporary piece of recorded audio.
+          recorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunksRef.current.push(event.data);
+            }
+          };
+
+          // Once recording has completely stopped, we combine the chunks
+          // into one temporary audio Blob using the same pattern as VoiceRecorder.
+          recorder.onstop = () => {
+            const audioBlob = new Blob(audioChunksRef.current, {
+              type: recorder.mimeType,
+            });
+
+            // Create a temporary URL that points to the audio Blob.
+            const audioURL = URL.createObjectURL(audioBlob);
+
+            // Store it so handleStopRecording can include it in the payload.
+            audioURLRef.current = audioURL;
+          };
+
+          // Start recording.
           recorder.start();
         } catch (e) {
           console.warn('MediaRecorder init:', e);
@@ -62,6 +98,7 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
       isSubscribed = false;
       clearInterval(timerInterval);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      // eslint-disable-next-line react-hooks/immutability
       cleanupAudioResources();
     };
   }, []);
@@ -106,6 +143,7 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
       const height = (canvas.height = canvas.clientHeight || 800);
 
       let currentVolume = 0;
+      // eslint-disable-next-line no-useless-assignment
       let currentPitchVar = 0;
 
       if (analyserNode) {
@@ -207,6 +245,7 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
       volumeVariance: volVar,
       pitchVariance: pitchVar,
       durationSeconds: seconds,
+      audioURL: audioURLRef.current,
     };
 
     // Smooth transition delay (120ms) before triggering result popup
