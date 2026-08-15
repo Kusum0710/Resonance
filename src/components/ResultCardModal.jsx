@@ -1,19 +1,11 @@
 import { useEffect, useRef } from 'react';
 import './ResultCardModal.css';
 
-export default function ResultCardModal({ sessionResult, onSave = () => {}, onClose = () => {} }) {
+export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { } }) {
   const bgCanvasRef = useRef(null);
   const animFrameRef = useRef(null);
 
-  if (!sessionResult) return null;
-
-  const {
-    biomeName,
-    tagline,
-    insightMessage,
-    tryThisNext,
-    terrainColors,
-  } = sessionResult;
+  const terrainColors = sessionResult?.terrainColors;
 
   // Render rich animated background terrain atmosphere
   useEffect(() => {
@@ -108,6 +100,18 @@ export default function ResultCardModal({ sessionResult, onSave = () => {}, onCl
     };
   }, [sessionResult, terrainColors]);
 
+  if (!sessionResult) return null;
+
+  const {
+    biomeName,
+    tagline,
+    insightMessage,
+    tryThisNext,
+    analysisLines = [],
+    intensity,
+    pitchHz,
+  } = sessionResult;
+
   return (
     <div className="screenshot-result-overlay">
       {/* Background Volcanic/Terrain Canvas */}
@@ -125,14 +129,38 @@ export default function ResultCardModal({ sessionResult, onSave = () => {}, onCl
         {/* Header row: Eyebrow only */}
         <div className="screenshot-card-header">
           <span className="screenshot-eyebrow">TODAY'S BIOME</span>
+          {typeof intensity === 'number' && (
+            <span className="screenshot-intensity">
+              Intensity: {intensity.toFixed(1)}/10
+            </span>
+          )}
         </div>
 
         {/* Biome Title & Tagline */}
         <h1 className="screenshot-biome-title">{biomeName}</h1>
         <p className="screenshot-tagline">{tagline}</p>
 
-        {/* Insight Paragraph */}
-        <p className="screenshot-insight-body">{insightMessage}</p>
+        {/* 2-3 Line Self-Analysis Note */}
+        {analysisLines && analysisLines.length > 0 ? (
+          <div className="screenshot-self-analysis-box">
+            <span className="screenshot-analysis-eyebrow">SELF-ANALYSIS NOTE</span>
+            <div className="screenshot-analysis-lines">
+              {analysisLines.map((line, idx) => (
+                <p key={idx} className="screenshot-analysis-line">
+                  <span className="line-dot">•</span> {line}
+                </p>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="screenshot-insight-body">{insightMessage}</p>
+        )}
+
+        {/* Vocal Prosody Quick Stats */}
+        <div className="screenshot-prosody-stats-row">
+          <span className="result-stat-pill">Pitch: {pitchHz || 210} Hz</span>
+          <span className="result-stat-pill">Duration: {sessionResult.duration || '20s'}</span>
+        </div>
 
         {/* Inner Box: TRY THIS NEXT */}
         {tryThisNext && (

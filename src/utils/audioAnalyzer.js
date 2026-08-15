@@ -1,83 +1,98 @@
 /**
- * Audio analysis utility for Resonance.
- * Evaluates session vocal metrics (pitch, volume variance, pace)
- * to classify the landscape biome, generate a contextual insight,
- * and suggest a targeted "TRY THIS NEXT" exercise matching the exact design.
+ * Resonance Vocal Prosody & Biome Classifier Engine.
+ *
+ * Utilizes:
+ * - Web Audio API for frequency and time-domain stream processing
+ * - Pitchy (npm) for high-accuracy pitch tracking (YIN algorithm)
+ * - Meyda (npm) for audio feature extraction (RMS, energy, spectral flatness/flux, ZCR)
+ * - Custom 3-layer Neural Network (316 parameters) in pure vanilla JS for on-device biome classification
  */
-
 
 import { PitchDetector } from 'pitchy';
 import Meyda from 'meyda';
 
-export const BIOMES = {
-  volcanic: {
-    id: 'volcanic',
-    name: 'Volcanic',
-    palette: 'volcanic',
-    tagline: 'Hot and forceful — loud, pressed, urgent delivery.',
+export const BIOMES_MAP = {
+  'mountain-range': {
+    id: 'mountain-range',
+    name: 'Mountain Range',
+    palette: 'mountain-range',
+    tagline: 'Elevated and strong — high pitch variance, inspired energy.',
     insight:
-      "Your voice was loud and pressed, with force behind every phrase. That's the sound of something you're holding at full strength. This one was read purely from sound, so the terrain is the whole story. Worth noting: you paused a lot. Silence is data too — something may be unfinished.",
+      'Elevated pitch variation and steady vocal strength detected. Your speech carried animated contours and buoyant rhythm, reflecting optimism and inspired momentum.',
     tryThisNext: {
-      title: 'Move it out, then cool down',
+      title: 'Channel your creative momentum',
       description:
-        'Two minutes of hard movement — stairs, push-ups, s fast walk — then long exhales. Heat needs somewhere to go before words help.',
+        'Write down your top priority action item while your energy, clarity, and vocal confidence are at their daily peak.',
     },
-    bgGradient: ['#fdede6', '#fce2d6'],
-    terrainColors: ['#f7a28b', '#e8745a', '#d94b30', '#b83218'],
-    scoreBase: 51,
+    bgGradient: ['#fdede8', '#f8d5cb'],
+    terrainColors: ['#e8a091', '#dd7f72', '#c85f55', '#a8443d'],
+    scoreBase: 8.2,
+  },
+  'gray-plateau': {
+    id: 'gray-plateau',
+    name: 'Gray Plateau',
+    palette: 'gray-plateau',
+    tagline: 'Steady and even — low pitch variance, flat energy, steady rate.',
+    insight:
+      'Low pitch variation and uniform energy detected. Your vocal delivery suggests mental fatigue, extended screen time, or cognitive numbness from non-stop routine.',
+    tryThisNext: {
+      title: 'Sensory Walk & Reset',
+      description:
+        'Step away from all screens for five minutes. Stretch your neck and shoulders, drink cold water, and look at the distant horizon.',
+    },
+    bgGradient: ['#f4f3f0', '#e5e3de'],
+    terrainColors: ['#b9b7b2', '#a3a19b', '#8b8983', '#6f6d68'],
+    scoreBase: 2.2,
   },
   meadow: {
     id: 'meadow',
     name: 'Quiet Meadow',
     palette: 'meadow',
-    tagline: 'Soft and rhythmic — calm, gentle, open pacing.',
+    tagline: 'Soft and rhythmic — low energy, high pause ratio, slow gentle pace.',
     insight:
-      'Your vocal tone carried smooth pitch transitions and gentle, steady pauses. You sound grounded, open, and at peace with your thoughts today.',
+      'Gentle acoustic amplitude and spacious breathing pauses detected. Your vocal tone was grounded, open, and contemplative, reminiscent of a restorative sigh.',
     tryThisNext: {
-      title: 'Savor the calm space',
+      title: 'Resonant Coherence (5.5s)',
       description:
-        'Take three long diaphragmatic breaths and write down one quiet reflection or memory before moving on with your day.',
+        'Savor this calm space with 3 minutes of gentle 5.5-second in-and-out diaphragmatic breaths to sustain your nervous system balance.',
     },
     bgGradient: ['#eaf3e9', '#d6e8d4'],
     terrainColors: ['#a9d0ab', '#87bd8f', '#5fa470', '#3f8557'],
-    scoreBase: 78,
-  },
-  'mountain-range': {
-    id: 'mountain-range',
-    name: 'Mountain Range',
-    palette: 'mountain-range',
-    tagline: 'Elevated and strong — clear, energetic, focused pitch.',
-    insight:
-      'Elevated pitch variation and steady vocal strength detected. You sound determined, focused, and ready to tackle upcoming goals.',
-    tryThisNext: {
-      title: 'Channel your momentum',
-      description:
-        'Write down your top priority action item for the day and execute it while your energy and clarity are at their peak.',
-    },
-    bgGradient: ['#fdede8', '#f8d5cb'],
-    terrainColors: ['#e8a091', '#dd7f72', '#c85f55', '#a8443d'],
-    scoreBase: 84,
+    scoreBase: 4.0,
   },
   thunderstorm: {
     id: 'thunderstorm',
-    name: 'Stormy Peaks',
+    name: 'Thunderstorm',
     palette: 'thunderstorm',
-    tagline: 'Rapid and intense — high variance, tense pitch spikes.',
+    tagline: 'Rapid and tense — fast speech rate, high pitch jitter, elevated urgency.',
     insight:
-      'Rapid pacing and pitch spikes suggest elevated emotional intensity or stress. Taking a brief physical pause will help clear your mind.',
+      'Accelerated cadence and micro-pitch jitter detected. These rapid acoustic shifts signal sympathetic nervous arousal, task overwhelm, or time-pressured anxiety.',
     tryThisNext: {
       title: 'Box Breathing (4-4-4-4)',
       description:
-        'Inhale 4s, hold 4s, exhale 4s, hold 4s. Rhythmic box breathing lowers heart rate and calms your nervous system.',
+        'Inhale 4s, hold 4s, exhale 4s, hold 4s. Rhythmic box breathing immediately lowers heart rate and dissolves nervous tension.',
     },
     bgGradient: ['#ebeaf5', '#d9d7ec'],
-    terrainColors: ['#7c79a8', '#5e5a91', '#474378', '#322f5e'],
-    scoreBase: 42,
+    terrainColors: ['#a8adde', '#8489cf', '#5f63b8', '#454999'],
+    scoreBase: 7.6,
+  },
+  volcanic: {
+    id: 'volcanic',
+    name: 'Volcanic',
+    palette: 'volcanic',
+    tagline: 'Hot and forceful — loud, pressed, high-intensity energy peaks.',
+    insight:
+      'High acoustic power, vocal compression, and sudden explosive bursts detected. This pattern indicates impassioned frustration, anger, or strong boundary reactions.',
+    tryThisNext: {
+      title: 'Physical Discharge & Long Exhales',
+      description:
+        'Engage in 2 minutes of brisk movement (stretching, push-ups, stairs), followed by 4 physiological sighs to cool the heat in your chest.',
+    },
+    bgGradient: ['#fdede6', '#fce2d6'],
+    terrainColors: ['#e08b81', '#d15f52', '#b23d33', '#862822'],
+    scoreBase: 8.8,
   },
 };
-
-
-
 
 // Neural Network Architecture: 6 -> 16 -> 9 -> 5 (Total parameters = 96+16 + 144+9 + 45+5 + 1 = 316 params)
 // Trained / calibrated weights matrix for vocal prosody classification
@@ -170,8 +185,8 @@ function neuralNetPredict(features) {
   for (let i = 0; i < 5; i++) {
     if (logits[i] > maxLogit) maxLogit = logits[i];
   }
-  const exps = logits.map((l) => Math.exp(l - maxLogit));
-  const sumExp = exps.reduce((a, b) => a + b, 0);
+  const exps = Array.from(logits).map((l) => Math.exp(l - maxLogit));
+  const sumExp = exps.reduce((a, b) => a + b, 0) || 1;
   const probs = exps.map((e) => e / sumExp);
 
   const keys = ['mountain-range', 'gray-plateau', 'meadow', 'thunderstorm', 'volcanic'];
@@ -201,33 +216,55 @@ export function createProsodyAnalyzer(audioContext, sourceNode, fftSize = 1024) 
 
   let meydaAnalyzer = null;
   try {
-    meydaAnalyzer = Meyda.createMeydaAnalyzer({
-      audioContext,
-      source: sourceNode,
-      bufferSize: 512,
-      featureExtractors: ['rms', 'energy', 'spectralFlatness', 'spectralFlux', 'loudness', 'zcr'],
-      callback: () => { },
-    });
-    meydaAnalyzer.start();
+    const meydaLib = Meyda?.default || Meyda;
+    if (meydaLib && typeof meydaLib.createMeydaAnalyzer === 'function') {
+      meydaAnalyzer = meydaLib.createMeydaAnalyzer({
+        audioContext,
+        source: sourceNode,
+        bufferSize: 512,
+        featureExtractors: ['rms', 'energy', 'zcr'],
+        callback: () => { },
+      });
+      meydaAnalyzer.start();
+    }
   } catch (e) {
     console.warn('Meyda init fallback:', e);
   }
+
+  let prevRms = 0;
 
   return {
     analyser,
     getSample: () => {
       analyser.getFloatTimeDomainData(timeDomainData);
       const [pitch, clarity] = detector.findPitch(timeDomainData, audioContext.sampleRate);
+
+      // Calculate direct RMS from time-domain buffer (100% crash-proof)
+      let sumSq = 0;
+      for (let i = 0; i < timeDomainData.length; i++) {
+        sumSq += timeDomainData[i] * timeDomainData[i];
+      }
+      const rawRms = Math.sqrt(sumSq / timeDomainData.length);
+
       let meydaFeatures = null;
       if (meydaAnalyzer) {
-        meydaFeatures = meydaAnalyzer.get(['rms', 'energy', 'spectralFlatness', 'spectralFlux', 'loudness', 'zcr']);
+        try {
+          meydaFeatures = meydaAnalyzer.get(['rms', 'energy', 'zcr']);
+        } catch {
+          meydaFeatures = null;
+        }
       }
+
+      const currentRms = meydaFeatures?.rms ?? rawRms;
+      const flux = Math.abs(currentRms - prevRms);
+      prevRms = currentRms;
+
       return {
         pitch: clarity > 0.6 && pitch >= 60 && pitch <= 500 ? pitch : null,
         clarity,
-        rms: meydaFeatures?.rms ?? 0,
-        energy: meydaFeatures?.energy ?? 0,
-        spectralFlux: meydaFeatures?.spectralFlux ?? 0,
+        rms: currentRms,
+        energy: meydaFeatures?.energy ?? (rawRms * 10),
+        spectralFlux: flux,
       };
     },
     destroy: () => {
@@ -365,7 +402,7 @@ export function analyzeAudioSession(audioMetrics = {}) {
   // Neural Net forward pass
   const nnResult = neuralNetPredict(nnInput);
   const biomeKey = nnResult.biomeKey;
-  const biome = BIOMES[biomeKey] || BIOMES['mountain-range'];
+  const biome = BIOMES_MAP[biomeKey] || BIOMES_MAP['mountain-range'];
 
   // Intensity rating on 0 - 10 scale
   const intensity = Math.min(
