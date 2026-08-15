@@ -1,14 +1,13 @@
-# 🎙️ RESONANCE — Emotional Landscape Generator via Vocal Prosody
+# 🎙️ RESONANCE
 
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio_API-DSP-FF6B6B?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![On--Device AI](https://img.shields.io/badge/AI-On--Device_Neural_Net-4EBA6F?style=for-the-badge)](https://github.com/)
 [![Privacy First](https://img.shields.io/badge/Privacy-100%25_Zero_Cloud-9B51E0?style=for-the-badge)](https://github.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 > **"Your voice knows how you feel before your conscious mind does."**  
-> Resonance is an offline-first, private vocal reflection companion that transforms the raw acoustics of your spoken voice into living, generative procedural landscapes and actionable wellness insights.
+> Resonance is a private vocal reflection companion that transforms the raw acoustics of your spoken voice into living, generative procedural landscapes and actionable wellness insights.
 
 ---
 
@@ -223,7 +222,7 @@ resonance/
    ```bash
    npm run dev
    ```
-   Open your browser and navigate to `http://localhost:3000` (or the port specified in terminal).
+   Open your browser and navigate to `http://localhost:5173` (or the port specified in terminal).
 
 4. **Build for production**:
    ```bash
