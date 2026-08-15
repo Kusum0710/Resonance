@@ -56,7 +56,7 @@ export default function HomeScreen({ onStartTalking = () => {}, onNavChange = ()
       <section className="last-terrain">
         <div className="section-heading">
           <h2>Last terrain</h2>
-          <button type="button" className="see-all">
+          <button type="button" className="see-all" onClick={() => onNavChange('reflections')}>
             See all
             <ChevronRightIcon />
           </button>
