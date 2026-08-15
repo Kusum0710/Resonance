@@ -4,6 +4,7 @@ import TimelineScreen from './screens/TimelineScreen';
 import LiveRecordingModal from './components/LiveRecordingModal';
 import ResultCardModal from './components/ResultCardModal';
 import { analyzeAudioSession } from './utils/audioAnalyzer';
+import SettingsScreen from './screens/SettingsScreen';
 import './App.css';
 
 function App() {
@@ -53,7 +54,9 @@ function App() {
           onOpenSession={handleOpenSession}
           customSessions={savedSessions}
         />
-      ) : (
+      ) :screen === 'settings' ? (
+      <SettingsScreen onNavChange={setScreen} />
+    ) : (
         <HomeScreen
           onStartTalking={handleStartTalking}
           onNavChange={setScreen}
