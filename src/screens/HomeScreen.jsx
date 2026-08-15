@@ -18,8 +18,20 @@ const lastTerrain = {
   timeAgo: 'Yesterday',
 };
 
-export default function HomeScreen({ onStartTalking = () => {}, onNavChange = () => {} }) {
+export default function HomeScreen({
+  onStartTalking = () => {},
+  onNavChange = () => {},
+  lastSession = null,
+}) {
   const [pressed, setPressed] = useState(false);
+
+  const displayTerrain = lastSession
+    ? {
+        palette: lastSession.palette,
+        label: lastSession.biomeName,
+        timeAgo: lastSession.dateFormatted || 'Just now',
+      }
+    : lastTerrain;
 
   return (
     <div className="home-screen">
@@ -63,10 +75,10 @@ export default function HomeScreen({ onStartTalking = () => {}, onNavChange = ()
         </div>
 
         <button type="button" className="terrain-card" onClick={() => onNavChange('reflections')}>
-          <TerrainPreview palette={lastTerrain.palette} className="terrain-card__art" />
+          <TerrainPreview palette={displayTerrain.palette} className="terrain-card__art" />
           <span className="terrain-card__meta">
-            <span className="terrain-card__label">{lastTerrain.label}</span>
-            <span className="terrain-card__time">{lastTerrain.timeAgo}</span>
+            <span className="terrain-card__label">{displayTerrain.label}</span>
+            <span className="terrain-card__time">{displayTerrain.timeAgo}</span>
           </span>
         </button>
       </section>
@@ -74,4 +86,4 @@ export default function HomeScreen({ onStartTalking = () => {}, onNavChange = ()
       <BottomNav active="home" onChange={onNavChange} />
     </div>
   );
-}
+}
