@@ -1,7 +1,7 @@
 // Placeholder data standing in for real recorded sessions. Once the
 // recorder + classifier are wired up, this should come from storage instead.
 
-export const sessions = [
+export const initialSessions = [
   {
     id: 's6',
     palette: 'mountain-range',
@@ -51,3 +51,45 @@ export const sessions = [
     trigger: 'Cognitive overload from long meetings flattened your usual pitch range.',
   },
 ];
+
+const STORAGE_KEY = 'resonance_sessions_history_v2';
+
+export function getStoredSessions() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialSessions));
+      return initialSessions;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed : initialSessions;
+  } catch (e) {
+    console.warn('Storage read error:', e);
+    return initialSessions;
+  }
+}
+
+export function saveSessionToStorage(newSession) {
+  try {
+    const current = getStoredSessions();
+    const updated = [newSession, ...current.filter((s) => s.id !== newSession.id)];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    return updated;
+  } catch (e) {
+    console.warn('Storage save error:', e);
+    return [newSession, ...initialSessions];
+  }
+}
+
+export function getPast7DaysSessions(allSessions = []) {
+  // Return the most recent 7 distinct days or sessions
+  if (!allSessions || !allSessions.length) return initialSessions.slice(0, 7);
+  return allSessions.slice(0, 7);
+}
+
+export const sessions = initialSessions;
+
+export function getSessionByDate(dateStr) {
+  const all = getStoredSessions();
+  return all.find((s) => s.date === dateStr);
+}

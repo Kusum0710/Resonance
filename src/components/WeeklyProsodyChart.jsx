@@ -278,7 +278,7 @@ export default function WeeklyProsodyChart({
             {/* Bottom Footer Row matching Screenshot */}
             <div className="weekly-card-footer">
                 <span className="footer-tap-hint">
-                    Tap anywhere on this card to open the interactive Calendar view
+                    Your weekly moods
                 </span>
                 <button
                     type="button"
