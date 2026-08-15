@@ -1,85 +1,104 @@
 import { useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import TimelineScreen from './screens/TimelineScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import LiveRecordingModal from './components/LiveRecordingModal';
 import ResultCardModal from './components/ResultCardModal';
+import DayDetailModal from './components/DayDetailModal';
 import { analyzeAudioSession } from './utils/audioAnalyzer';
-import SettingsScreen from './screens/SettingsScreen';
+import { getStoredSessions, saveSessionToStorage } from './lib/sessions';
 import './App.css';
 
 function App() {
-  const [screen, setScreen] = useState('home');
-  const [isRecording, setIsRecording] = useState(false);
-  const [isResultOpen, setIsResultOpen] = useState(false);
-  const [sessionResult, setSessionResult] = useState(null);
-  const [savedSessions, setSavedSessions] = useState([]);
+    const [screen, setScreen] = useState('home');
+    const [isRecording, setIsRecording] = useState(false);
+    const [isResultOpen, setIsResultOpen] = useState(false);
+    const [sessionResult, setSessionResult] = useState(null);
+    const [activeDetailSession, setActiveDetailSession] = useState(null);
+    const [savedSessions, setSavedSessions] = useState(() => getStoredSessions());
 
-  const handleStartTalking = () => {
-    setIsRecording(true);
-  };
+    const handleStartTalking = () => {
+        setIsRecording(true);
+    };
 
-  const handleStopRecording = (audioMetrics) => {
-    setIsRecording(false);
-    const resultPayload = analyzeAudioSession(audioMetrics);
-    setSessionResult(resultPayload);
-    setIsResultOpen(true);
-  };
+    const handleStopRecording = (audioMetrics) => {
+        setIsRecording(false);
+        const resultPayload = analyzeAudioSession(audioMetrics);
+        setSessionResult(resultPayload);
+        setIsResultOpen(true);
+    };
 
-  const handleCancelRecording = () => {
-    setIsRecording(false);
-  };
+    const handleCancelRecording = () => {
+        setIsRecording(false);
+    };
 
-  const handleSaveResult = () => {
-    if (sessionResult) {
-      setSavedSessions((prev) => [sessionResult, ...prev]);
-    }
-    setIsResultOpen(false);
-  };
+    const handleSaveResult = () => {
+        if (sessionResult) {
+            const updated = saveSessionToStorage(sessionResult);
+            setSavedSessions(updated);
+        }
+        setIsResultOpen(false);
+        // Navigate smoothly to reflections dashboard so the user sees their new reflection on the graph
+        setScreen('reflections');
+    };
 
-  const handleCloseResult = () => {
-    setIsResultOpen(false);
-  };
+    const handleCloseResult = () => {
+        setIsResultOpen(false);
+    };
 
-  const handleOpenSession = (sessionId) => {
-    console.log('Open session details', sessionId);
-  };
+    const handleOpenSession = (sessionId) => {
+        const found = savedSessions.find((s) => s.id === sessionId);
+        if (found) {
+            setActiveDetailSession(found);
+        }
+    };
 
-  const lastSavedSession = savedSessions[0] || null;
+    const lastSavedSession = savedSessions[0] || null;
 
-  return (
-    <div className="app-container">
-      {screen === 'reflections' ? (
-        <TimelineScreen
-          onNavChange={setScreen}
-          onOpenSession={handleOpenSession}
-          customSessions={savedSessions}
-        />
-      ) :screen === 'settings' ? (
-      <SettingsScreen onNavChange={setScreen} />
-    ) : (
-        <HomeScreen
-          onStartTalking={handleStartTalking}
-          onNavChange={setScreen}
-          lastSession={lastSavedSession}
-        />
-      )}
+    return (
+        <div className="app-container">
+            {screen === 'reflections' ? (
+                <TimelineScreen
+                    onNavChange={setScreen}
+                    onOpenSession={handleOpenSession}
+                    customSessions={savedSessions}
+                />
+            ) : screen === 'settings' ? (
+                <SettingsScreen onNavChange={setScreen} />
+            ) : (
+                <HomeScreen
+                    onStartTalking={handleStartTalking}
+                    onNavChange={setScreen}
+                    lastSession={lastSavedSession}
+                />
+            )}
 
-      {isRecording && (
-        <LiveRecordingModal
-          onStop={handleStopRecording}
-          onCancel={handleCancelRecording}
-        />
-      )}
+            {/* Live Recording Fullscreen Modal */}
+            {isRecording && (
+                <LiveRecordingModal
+                    onStop={handleStopRecording}
+                    onCancel={handleCancelRecording}
+                />
+            )}
 
-      {isResultOpen && sessionResult && (
-        <ResultCardModal
-          sessionResult={sessionResult}
-          onSave={handleSaveResult}
-          onClose={handleCloseResult}
-        />
-      )}
-    </div>
-  );
+            {/* Immediate Session Result Modal */}
+            {isResultOpen && sessionResult && (
+                <ResultCardModal
+                    sessionResult={sessionResult}
+                    onSave={handleSaveResult}
+                    onClose={handleCloseResult}
+                />
+            )}
+
+            {/* Dedicated Day Detail Modal */}
+            {activeDetailSession && (
+                <DayDetailModal
+                    session={activeDetailSession}
+                    onClose={() => setActiveDetailSession(null)}
+                />
+            )}
+        </div>
+    );
 }
 
 export default App;

@@ -116,3 +116,4 @@ export default function MonthCalendar({ sessions = [], onSelectDay = () => {} })
     </div>
   );
 }
+}

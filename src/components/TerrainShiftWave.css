@@ -1,0 +1,93 @@
+.terrain-shift-card {
+    width: 100%;
+    background: var(--color-card, #ffffff);
+    border-radius: 20px;
+    padding: 16px 16px 14px;
+    box-shadow: 0 10px 28px -12px rgba(33, 29, 26, 0.1), 0 0 0 1px rgba(33, 29, 26, 0.05);
+    margin-bottom: 20px;
+}
+
+.shift-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.shift-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--color-text-muted, #948c7d);
+}
+
+.shift-active-tag {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text, #211d1a);
+}
+
+.shift-canvas-box {
+    width: 100%;
+    height: 72px;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.shift-wave-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.shift-pills-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.shift-pill-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1px solid transparent;
+    padding: 4px 2px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.shift-pill-btn:hover {
+    background: rgba(111, 147, 209, 0.08);
+}
+
+.shift-pill-btn--active {
+    background: rgba(111, 147, 209, 0.12);
+    border-color: rgba(111, 147, 209, 0.35);
+    transform: translateY(-2px);
+}
+
+.shift-pill-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.shift-pill-day {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted, #948c7d);
+}
+
+.shift-pill-btn--active .shift-pill-day {
+    color: var(--color-text, #211d1a);
+    font-weight: 700;
+}
