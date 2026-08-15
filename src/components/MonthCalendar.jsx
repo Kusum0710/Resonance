@@ -31,7 +31,7 @@ function buildGrid(year, month) {
   return cells;
 }
 
-export default function MonthCalendar({ sessions = [], onSelectDay = () => {} }) {
+export default function MonthCalendar({ sessions = [], onSelectDay = () => { } }) {
   const today = useMemo(() => new Date(), []);
   const [cursor, setCursor] = useState({ year: today.getFullYear(), month: today.getMonth() });
 
@@ -94,9 +94,8 @@ export default function MonthCalendar({ sessions = [], onSelectDay = () => {} })
             <button
               key={cell.date}
               type="button"
-              className={`month-calendar__cell${isToday ? ' month-calendar__cell--today' : ''}${
-                session ? ' month-calendar__cell--filled' : ''
-              }`}
+              className={`month-calendar__cell${isToday ? ' month-calendar__cell--today' : ''}${session ? ' month-calendar__cell--filled' : ''
+                }`}
               onClick={() => onSelectDay(cell.date, session)}
               aria-label={
                 session
@@ -115,5 +114,4 @@ export default function MonthCalendar({ sessions = [], onSelectDay = () => {} })
       </div>
     </div>
   );
-}
 }
