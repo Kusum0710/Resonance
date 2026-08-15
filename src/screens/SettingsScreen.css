@@ -1,0 +1,187 @@
+.settings-screen {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  min-height: 100svh;
+  background: var(--color-bg-soft);
+  padding: 28px 20px 110px;
+  overflow-y: auto;
+}
+
+.settings-header {
+  margin-bottom: 28px;
+}
+
+.settings-eyebrow {
+  margin: 0 0 5px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.settings-subtitle {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-section-title {
+  margin: 0 0 9px 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.settings-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  border: none;
+  border-radius: 20px;
+  padding: 15px;
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  color: var(--color-text);
+}
+
+button.settings-card {
+  cursor: pointer;
+}
+
+.settings-card--profile {
+  min-height: 76px;
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  background: #e5eadf;
+  color: #657d68;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.settings-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+
+.settings-card-content strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-card-content span {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.settings-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-faint);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.settings-card--stacked {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 76px;
+  padding: 14px 15px;
+}
+
+.settings-row--button {
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-row--button:hover {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.settings-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #f0f1ea;
+  color: #708274;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.settings-status {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #e9f1e9;
+  color: #67816b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.settings-divider {
+  height: 1px;
+  margin: 0 15px;
+  background: #eeeae3;
+}
+
+.settings-row--danger .settings-icon {
+  background: #f5e9e5;
+  color: #a16f63;
+}
+
+.settings-row--danger strong {
+  color: #8f6259;
+}
+
+.settings-footer {
+  margin: 4px 20px 0;
+  text-align: center;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--color-text-faint);
+}
