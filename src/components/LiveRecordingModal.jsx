@@ -98,7 +98,6 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
       isSubscribed = false;
       clearInterval(timerInterval);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      // eslint-disable-next-line react-hooks/immutability
       cleanupAudioResources();
     };
   }, []);
