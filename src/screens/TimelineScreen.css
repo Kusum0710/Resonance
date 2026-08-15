@@ -38,6 +38,10 @@
   padding-bottom: 16px;
 }
 
+.timeline-month {
+  padding-bottom: 16px;
+}
+
 .timeline-row {
   display: flex;
   align-items: flex-start;
