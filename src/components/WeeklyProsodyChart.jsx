@@ -1,27 +1,19 @@
-import { useState } from "react";
-import { getBiome } from "../lib/biomes";
+import { useState } from 'react';
+import { getBiome } from '../lib/biomes';
 import './WeeklyProsodyChart.css';
-
 
 export default function WeeklyProsodyChart({
     sessions = [],
     onSelectDay = () => { },
     onOpenCalendar = () => { },
 }) {
-    //Taking last 7 days sessions
+    // Take last 7 days of sessions
     const weekData = sessions.slice(0, 7).reverse();
     const [activeIndex, setActiveIndex] = useState(weekData.length - 1);
 
-    if (!weekData.length || !sessions.length) {
-        return (
-            <div className="empty-chart">
-                <h2>No sessions yet</h2>
-                <p>Record your first session to see your prosody terrain</p>
-            </div>
-        )
-    }
+    if (!weekData.length) return null;
 
-    //chart dimensions
+    // Chart dimensions (viewBox coordinates)
     const width = 360;
     const height = 180;
     const paddingLeft = 32;
@@ -29,50 +21,44 @@ export default function WeeklyProsodyChart({
     const paddingTop = 28;
     const paddingBottom = 36;
 
+    const chartW = width - paddingLeft - paddingRight;
+    const chartH = height - paddingTop - paddingBottom;
 
-    const innerWidth = width - paddingLeft - paddingRight;
-    const innerHeight = height - paddingTop - paddingBottom;
-
-    //Mapping Intensity(0-10) to SVG points
+    // Map intensity (0 - 10) to SVG points
     const points = weekData.map((d, i) => {
-        const x = paddingLeft + (i / Math.max(1, weekData.length - 1)) * innerWidth;
-        const val = typeof d.intensity === "number" ? d.intensity : 5.0;
-
-        //we keep val 0 at bottom, val 10 at top
-        const y = paddingTop + innerHeight - (val / 10) * innerHeight;
-
+        const x = paddingLeft + (i / Math.max(1, weekData.length - 1)) * chartW;
+        const val = typeof d.intensity === 'number' ? d.intensity : 5.0;
+        // val 0 at bottom, val 10 at top
+        const y = paddingTop + chartH - (val / 10) * chartH;
         return { x, y, data: d, val };
-    })
-    //Generating smooth cubic SVG path from points
+    });
 
-    const makeSmooth = (points) => {
-        if (points.length === 0) return "";
-        if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+    // Generate smooth cubic bezier SVG path
+    const makeSmoothPath = (pts) => {
+        if (pts.length === 0) return '';
+        if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
 
+        let path = `M ${pts[0].x} ${pts[0].y}`;
+        for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = i > 0 ? pts[i - 1] : pts[i];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = i < pts.length - 2 ? pts[i + 2] : p2;
 
-        let path = `M ${points[0].x} ${points[0].y} `;
-        for (let i = 0; i < points.length; i++) {
-            const p0 = i > 0 ? points[i - 1] : points[i];
-            const p1 = points[i];
-            const p2 = points[i + 1];
-            // eslint-disable-next-line no-unused-vars
-            const p3 = i < points.length - 2 ? points[i + 2] : p2;
+            const cp1x = p1.x + (p2.x - p0.x) / 6;
+            const cp1y = p1.y + (p2.y - p0.y) / 6;
+            const cp2x = p2.x - (p3.x - p1.x) / 6;
+            const cp2y = p2.y - (p3.y - p1.y) / 6;
 
-            //Control points
-            const cp1x = p0.x + (p1.x - p0.x) * 6;
-            const cp1y = p0.y + (p1.y - p0.y) * 6;
-            const cp2x = p1.x - (p2.x - p1.x) * 6;
-            const cp2y = p1.y - (p2.y - p1.y) * 6;
-
-            //add segment
             path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-            //Close loop
         }
         return path;
     };
 
-    const linePath = makeSmooth(points);
-    const areaPath = points.length ? `${linePath} L ${points[points.length - 1].x} ${paddingTop + innerHeight} L ${points[0].x} ${paddingTop + innerHeight} Z` : "";
+    const linePath = makeSmoothPath(points);
+    const areaPath = points.length
+        ? `${linePath} L ${points[points.length - 1].x} ${paddingTop + chartH} L ${points[0].x} ${paddingTop + chartH} Z`
+        : '';
 
     const activePoint = points[activeIndex] || points[points.length - 1];
     const activeSession = activePoint?.data;
@@ -149,7 +135,7 @@ export default function WeeklyProsodyChart({
                         { val: 3, label: '3' },
                         { val: 0, label: '0' },
                     ].map((grid) => {
-                        const gy = paddingTop + innerHeight - (grid.val / 10) * innerHeight;
+                        const gy = paddingTop + chartH - (grid.val / 10) * chartH;
                         return (
                             <g key={grid.val}>
                                 <line
@@ -188,7 +174,7 @@ export default function WeeklyProsodyChart({
                             x1={activePoint.x}
                             y1={paddingTop - 4}
                             x2={activePoint.x}
-                            y2={paddingTop + innerHeight}
+                            y2={paddingTop + chartH}
                             className="chart-crosshair-line"
                         />
                     )}
@@ -229,7 +215,7 @@ export default function WeeklyProsodyChart({
                             <text
                                 key={`label-${idx}`}
                                 x={pt.x}
-                                y={paddingTop + innerHeight + 18}
+                                y={paddingTop + chartH + 18}
                                 className={`chart-x-axis-text${isSelected ? ' chart-x-axis-text--active' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -278,7 +264,7 @@ export default function WeeklyProsodyChart({
             {/* Bottom Footer Row matching Screenshot */}
             <div className="weekly-card-footer">
                 <span className="footer-tap-hint">
-                    Your weekly moods
+                    Tap anywhere on this card to open the interactive Calendar view
                 </span>
                 <button
                     type="button"
