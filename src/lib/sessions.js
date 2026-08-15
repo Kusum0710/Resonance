@@ -1,4 +1,8 @@
 // Single source of truth for session history, persistence, and weekly prosody trend data.
+// Placeholder data standing in for real recorded sessions. Once the
+// recorder + classifier are wired up, this should come from storage instead.
+// `date` is an ISO date (YYYY-MM-DD) so the month calendar can group by day;
+// `timeAgo` stays for the list view's relative-time label.
 
 export const initialSessions = [
   {
@@ -76,6 +80,7 @@ export const initialSessions = [
     biomeName: 'Mountain Range',
     date: '2026-08-12',
     dayOfWeek: 'Wed',
+    date: '2026-08-12',
     timeAgo: '3 days ago',
     timeFormatted: '05:30 PM',
     duration: '31s',
@@ -99,6 +104,7 @@ export const initialSessions = [
     biomeName: 'Meadow',
     date: '2026-08-11',
     dayOfWeek: 'Tue',
+    date: '2026-08-11',
     timeAgo: '4 days ago',
     timeFormatted: '09:20 PM',
     duration: '22s',
@@ -122,6 +128,7 @@ export const initialSessions = [
     biomeName: 'Thunderstorm',
     date: '2026-08-10',
     dayOfWeek: 'Mon',
+    date: '2026-08-10',
     timeAgo: '5 days ago',
     timeFormatted: '02:45 PM',
     duration: '35s',
@@ -145,6 +152,7 @@ export const initialSessions = [
     biomeName: 'Gray Plateau',
     date: '2026-08-09',
     dayOfWeek: 'Sun',
+    date: '2026-08-09',
     timeAgo: '6 days ago',
     timeFormatted: '07:10 PM',
     duration: '28s',

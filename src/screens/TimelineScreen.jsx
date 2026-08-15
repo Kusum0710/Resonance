@@ -51,6 +51,12 @@ export default function TimelineScreen({
     }
   };
 
+  const handleSelectDay = (dateStr, session) => {
+    if (session) {
+      onOpenSession(session.id);
+    }
+  };
+
   return (
     <div className="timeline-screen">
       {/* Screen Header matching screenshot */}
