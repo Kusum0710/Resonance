@@ -1,16 +1,115 @@
-# React + Vite
+# 🎙️ Resonance
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Your best buddy** — a vocal journal app built with React that lets you record, analyse and revisit your thoughts through voice.
 
-Currently, two official plugins are available:
+## ✨ Features
+Core
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+✅ One-tap recording — Big pulsing mic button, intuitive flow
+✅ Real-time terrain — Canvas updates live as you speak
+✅ On-device AI — 156-parameter neural network, zero latency
+✅ 5 unique biomes — Each with distinct color palette and terrain signature
+✅ Speech transcription — Temporary on-device via Web Speech API
+✅ Contextual analysis — 2-3 line insight into emotional triggers
 
-## React Compiler
+Wellness
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+✅ Pattern detection — "3 stormy days → suggest breathing exercise"
+✅ Breathing exercises — 4 animated patterns (Box, 4-7-8, Energizing, Cooling)
+✅ Streak tracking — Daily consistency encouragement
+✅ Weekly dashboard — Trend graphs + terrain gallery
 
-## Expanding the ESLint configuration
+Privacy & Accessibility
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+✅ 100% on-device — No audio leaves your device
+✅ No account required — Works offline with localStorage
+✅ Language agnostic — Prosody analysis works in any language
+✅ No literacy required — Visual + audio feedback only
+✅ Sonification ready — Audio feedback for terrain changes
+✅ Export data — JSON export for personal records
+
+## 🛠️ Tech Stack
+
+Frontend          React 18 + Tailwind CSS
+Audio Processing  Web Audio API + Custom DSP
+AI/ML             Vanilla JS 3-Layer Neural Network (on-device)
+Visualization     HTML5 Canvas 2D + Procedural fBm Noise
+Charts            Recharts
+Storage           localStorage (primary) + Supabase (optional sync)
+Icons             Lucide React
+Animation         Framer Motion
+
+![alt text](image.png)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- npm (comes with Node.js)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Kusum0710/Resonance.git
+cd Resonance
+
+# Install dependencies
+npm install
+```
+
+### Development
+
+```bash
+# Start the dev server
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` (default Vite port).
+
+### Build for Production
+
+```bash
+# Create an optimized production build
+npm run build
+
+# Preview the production build locally
+npm run preview
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+## 📁 Project Structure
+
+```
+Resonance/
+├── public/               # Static assets
+├── src/
+│   ├── assets/           # Images & media
+│   ├── components/
+│   │   └── VoiceRecorder.jsx   # Core voice recording component
+│   ├── App.jsx           # Main app component
+│   ├── App.css           # App styles
+│   ├── index.css         # Global styles
+│   └── main.jsx          # Entry point
+├── index.html            # HTML template
+├── package.json
+└── vite.config.js
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
