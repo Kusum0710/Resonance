@@ -1,0 +1,6 @@
+/* Restored clean App layout without artificial borders */
+.app-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
