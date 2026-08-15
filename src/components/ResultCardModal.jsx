@@ -1,136 +1,157 @@
-import { useState, useEffect } from 'react';
-import TerrainPreview from './TerrainPreview';
+import { useEffect, useRef } from 'react';
 import './ResultCardModal.css';
 
 export default function ResultCardModal({ sessionResult, onSave = () => {}, onClose = () => {} }) {
-  const [activeStep, setActiveStep] = useState(0);
-  const [isBreathingActive, setIsBreathingActive] = useState(false);
-  const [breathPhase, setBreathPhase] = useState(0);
+  const bgCanvasRef = useRef(null);
+  const animFrameRef = useRef(null);
 
   if (!sessionResult) return null;
 
   const {
     biomeName,
-    palette,
-    tag,
-    dateFormatted,
-    durationFormatted,
+    tagline,
     insightMessage,
-    mindfulness,
+    tryThisNext,
+    terrainColors,
   } = sessionResult;
 
-  // Rhythmic timer for breathing exercises
+  // Render rich animated background terrain atmosphere
   useEffect(() => {
-    if (!isBreathingActive || mindfulness.type !== 'breathing') return;
+    const canvas = bgCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
-    const pattern = mindfulness.pattern || [4, 4, 4, 4];
-    const duration = (pattern[breathPhase] || 4) * 1000;
+    let time = 0;
+    const particles = Array.from({ length: 25 }, () => ({
+      x: Math.random(),
+      y: Math.random() * 0.6,
+      r: Math.random() * 2 + 1,
+      speed: Math.random() * 0.0008 + 0.0004,
+      alpha: Math.random() * 0.6 + 0.2,
+    }));
 
-    const timeout = setTimeout(() => {
-      setBreathPhase((prev) => (prev + 1) % pattern.length);
-    }, duration);
+    const render = () => {
+      time += 0.015;
+      const width = (canvas.width = canvas.clientWidth || 430);
+      const height = (canvas.height = canvas.clientHeight || 800);
 
-    return () => clearTimeout(timeout);
-  }, [isBreathingActive, breathPhase, mindfulness]);
+      // Rich ambient gradient background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#fdf4ef');
+      bgGrad.addColorStop(0.4, '#f8ded3');
+      bgGrad.addColorStop(1, '#ecc3b2');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Soft ambient glowing orb
+      const orbX = width * 0.5;
+      const orbY = height * 0.22;
+      const sunGrad = ctx.createRadialGradient(orbX, orbY, 10, orbX, orbY, 120);
+      sunGrad.addColorStop(0, 'rgba(255, 220, 200, 0.8)');
+      sunGrad.addColorStop(0.5, 'rgba(247, 162, 139, 0.35)');
+      sunGrad.addColorStop(1, 'rgba(247, 162, 139, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(orbX, orbY, 120, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Floating ambient particles
+      particles.forEach((p) => {
+        p.y -= p.speed;
+        if (p.y < 0) p.y = 0.6;
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x * width, p.y * height, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Layered procedural mountain & valley ridges
+      const colors = terrainColors || ['rgba(247, 162, 139, 0.45)', 'rgba(232, 116, 90, 0.65)', 'rgba(217, 75, 48, 0.8)', '#b83218'];
+      const layers = [
+        { color: colors[0] || 'rgba(247, 162, 139, 0.45)', base: 0.32, amp: 40, speed: 0.5 },
+        { color: colors[1] || 'rgba(232, 116, 90, 0.65)', base: 0.42, amp: 50, speed: 0.8 },
+        { color: colors[2] || 'rgba(217, 75, 48, 0.8)', base: 0.52, amp: 60, speed: 1.1 },
+        { color: colors[3] || '#b83218', base: 0.62, amp: 70, speed: 1.4 },
+      ];
+
+      layers.forEach((l, idx) => {
+        ctx.fillStyle = l.color;
+        ctx.beginPath();
+        ctx.moveTo(0, height);
+
+        const steps = 30;
+        const sliceWidth = width / steps;
+
+        for (let i = 0; i <= steps; i++) {
+          const x = i * sliceWidth;
+          const noise =
+            Math.sin(i * 0.35 + time * l.speed + idx) *
+            Math.cos(i * 0.2 - time * 0.3);
+          const y = height * l.base - noise * l.amp;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      animFrameRef.current = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [sessionResult, terrainColors]);
 
   return (
-    <div className="result-card-overlay">
-      <div className="result-card-container">
-        <header className="result-header">
-          <span className="result-eyebrow">Session Complete • {durationFormatted}</span>
-          <button type="button" className="result-close" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </header>
+    <div className="screenshot-result-overlay">
+      {/* Background Volcanic/Terrain Canvas */}
+      <canvas ref={bgCanvasRef} className="screenshot-bg-canvas" />
 
-        {/* Biome Landscape Preview Card */}
-        <div className="result-biome-card">
-          <TerrainPreview palette={palette} className="result-biome-art" />
-          <div className="result-biome-content">
-            <span className="result-tag" style={{ borderColor: mindfulness.color }}>
-              {tag}
-            </span>
-            <h2 className="result-title">Today's Landscape: {biomeName}</h2>
-            <p className="result-date">{dateFormatted}</p>
-          </div>
+      {/* Top back navigation */}
+      <header className="screenshot-result-header">
+        <button type="button" className="screenshot-back-btn" onClick={onClose} aria-label="Go back">
+          ←
+        </button>
+      </header>
+
+      {/* Main White Card Modal matching Screenshot 2 (No 51/100 score badge) */}
+      <div className="screenshot-result-card">
+        {/* Header row: Eyebrow only */}
+        <div className="screenshot-card-header">
+          <span className="screenshot-eyebrow">TODAY'S BIOME</span>
         </div>
 
-        {/* Contextual Emotional Insight Box */}
-        <section className="insight-section">
-          <div className="section-title-row">
-            <span className="sparkle-icon">✨</span>
-            <h3>Contextual Insight</h3>
+        {/* Biome Title & Tagline */}
+        <h1 className="screenshot-biome-title">{biomeName}</h1>
+        <p className="screenshot-tagline">{tagline}</p>
+
+        {/* Insight Paragraph */}
+        <p className="screenshot-insight-body">{insightMessage}</p>
+
+        {/* Inner Box: TRY THIS NEXT */}
+        {tryThisNext && (
+          <div className="try-this-next-box">
+            <span className="try-this-eyebrow">TRY THIS NEXT</span>
+            <h3 className="try-this-title">{tryThisNext.title}</h3>
+            <p className="try-this-desc">{tryThisNext.description}</p>
           </div>
-          <p className="insight-text">{insightMessage}</p>
-        </section>
+        )}
 
-        {/* Mindfulness Technique Section */}
-        <section className="mindfulness-section">
-          <div className="section-title-row">
-            <span className="leaf-icon">🧘</span>
-            <h3>Recommended Mindfulness</h3>
-          </div>
-
-          <div className="mindfulness-card" style={{ borderLeftColor: mindfulness.color }}>
-            <div className="mindfulness-header">
-              <h4 className="mindfulness-name">{mindfulness.title}</h4>
-              <p className="mindfulness-instruction">{mindfulness.instruction}</p>
-            </div>
-
-            {mindfulness.type === 'breathing' && (
-              <div className="breathing-widget">
-                <div
-                  className={`breathing-circle ${isBreathingActive ? 'breathing-circle--active' : ''}`}
-                  style={{
-                    animationDuration: `${mindfulness.pattern[breathPhase] || 4}s`,
-                    borderColor: mindfulness.color,
-                  }}
-                >
-                  <span className="breathing-label">
-                    {isBreathingActive
-                      ? mindfulness.labels[breathPhase] || 'Breathe'
-                      : 'Tap Start'}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  className="breathing-toggle-btn"
-                  onClick={() => {
-                    setIsBreathingActive(!isBreathingActive);
-                    setBreathPhase(0);
-                  }}
-                >
-                  {isBreathingActive ? 'Pause Exercise' : 'Start Guided Breath'}
-                </button>
-              </div>
-            )}
-
-            {mindfulness.type === 'grounding' && (
-              <ul className="grounding-list">
-                {mindfulness.steps.map((step, idx) => (
-                  <li
-                    key={idx}
-                    className={`grounding-item ${idx === activeStep ? 'grounding-item--active' : ''}`}
-                    onClick={() => setActiveStep(idx)}
-                  >
-                    <span className="grounding-num">{idx + 1}</span>
-                    <span className="grounding-text">{step}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-
-        <footer className="result-actions">
-          <button type="button" className="btn-secondary" onClick={onClose}>
+        {/* Footer Actions */}
+        <div className="screenshot-card-actions">
+          <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
             Discard
           </button>
-          <button type="button" className="btn-primary" onClick={onSave}>
+          <button type="button" className="screenshot-btn-primary" onClick={onSave}>
             Save Reflection
           </button>
-        </footer>
+        </div>
       </div>
     </div>
   );

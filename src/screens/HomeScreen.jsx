@@ -11,8 +11,7 @@ function getGreeting(date = new Date()) {
   return 'Good evening.';
 }
 
-// Placeholder until the gallery/history feature is wired up to real sessions.
-const lastTerrain = {
+const defaultLastTerrain = {
   palette: 'mountain-range',
   label: 'Mountain Range',
   timeAgo: 'Yesterday',
@@ -31,7 +30,7 @@ export default function HomeScreen({
         label: lastSession.biomeName,
         timeAgo: lastSession.dateFormatted || 'Just now',
       }
-    : lastTerrain;
+    : defaultLastTerrain;
 
   return (
     <div className="home-screen">
@@ -68,7 +67,7 @@ export default function HomeScreen({
       <section className="last-terrain">
         <div className="section-heading">
           <h2>Last terrain</h2>
-          <button type="button" className="see-all">
+          <button type="button" className="see-all" onClick={() => onNavChange('reflections')}>
             See all
             <ChevronRightIcon />
           </button>
@@ -86,4 +85,4 @@ export default function HomeScreen({
       <BottomNav active="home" onChange={onNavChange} />
     </div>
   );
-}
+}

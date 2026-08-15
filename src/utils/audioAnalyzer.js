@@ -2,92 +2,78 @@
  * Audio analysis utility for Resonance.
  * Evaluates session vocal metrics (pitch, volume variance, pace)
  * to classify the landscape biome, generate a contextual insight,
- * and suggest a targeted mindfulness exercise.
+ * and suggest a targeted "TRY THIS NEXT" exercise matching the exact design.
  */
 
 export const BIOMES = {
+  volcanic: {
+    id: 'volcanic',
+    name: 'Volcanic',
+    palette: 'volcanic',
+    tagline: 'Hot and forceful — loud, pressed, urgent delivery.',
+    insight:
+      "Your voice was loud and pressed, with force behind every phrase. That's the sound of something you're holding at full strength. This one was read purely from sound, so the terrain is the whole story. Worth noting: you paused a lot. Silence is data too — something may be unfinished.",
+    tryThisNext: {
+      title: 'Move it out, then cool down',
+      description:
+        'Two minutes of hard movement — stairs, push-ups, a fast walk — then long exhales. Heat needs somewhere to go before words help.',
+    },
+    bgGradient: ['#fdede6', '#fce2d6'],
+    terrainColors: ['#f7a28b', '#e8745a', '#d94b30', '#b83218'],
+    scoreBase: 51,
+  },
+  meadow: {
+    id: 'meadow',
+    name: 'Quiet Meadow',
+    palette: 'meadow',
+    tagline: 'Soft and rhythmic — calm, gentle, open pacing.',
+    insight:
+      'Your vocal tone carried smooth pitch transitions and gentle, steady pauses. You sound grounded, open, and at peace with your thoughts today.',
+    tryThisNext: {
+      title: 'Savor the calm space',
+      description:
+        'Take three long diaphragmatic breaths and write down one quiet reflection or memory before moving on with your day.',
+    },
+    bgGradient: ['#eaf3e9', '#d6e8d4'],
+    terrainColors: ['#a9d0ab', '#87bd8f', '#5fa470', '#3f8557'],
+    scoreBase: 78,
+  },
   'mountain-range': {
     id: 'mountain-range',
     name: 'Mountain Range',
     palette: 'mountain-range',
-    tag: 'High Energy & Focus',
-    description: 'Elevated pitch variation and steady vocal strength.',
+    tagline: 'Elevated and strong — clear, energetic, focused pitch.',
     insight:
-      'Your vocal tone carried high clarity and strong dynamics today. You sound determined, focused, and ready to tackle challenges.',
-    mindfulness: {
-      title: 'Box Breathing (4-4-4-4)',
-      type: 'breathing',
-      pattern: [4, 4, 4, 4],
-      labels: ['Inhale', 'Hold', 'Exhale', 'Hold'],
-      instruction: 'Focus your strong energy with rhythmic box breathing to maintain cognitive clarity.',
-      color: '#e8a091',
+      'Elevated pitch variation and steady vocal strength detected. You sound determined, focused, and ready to tackle upcoming goals.',
+    tryThisNext: {
+      title: 'Channel your momentum',
+      description:
+        'Write down your top priority action item for the day and execute it while your energy and clarity are at their peak.',
     },
-  },
-  meadow: {
-    id: 'meadow',
-    name: 'Flowing Meadow',
-    palette: 'meadow',
-    tag: 'Balanced & Peaceful',
-    description: 'Smooth, rhythmic transitions with gentle pitch contours.',
-    insight:
-      'Smooth pitch transitions and balanced pacing detected. Your vocal landscape feels grounded, harmonious, and at ease.',
-    mindfulness: {
-      title: '5-4-3-2-1 Grounding',
-      type: 'grounding',
-      steps: [
-        'Acknowledge 5 things you can see around you.',
-        'Acknowledge 4 things you can physically touch.',
-        'Acknowledge 3 things you can hear right now.',
-        'Acknowledge 2 things you can smell.',
-        'Acknowledge 1 deep breath of gratitude.',
-      ],
-      instruction: 'Savor your calm state by tuning in to your immediate surroundings.',
-      color: '#87bd8f',
-    },
-  },
-  'gray-plateau': {
-    id: 'gray-plateau',
-    name: 'Quiet Plateau',
-    palette: 'gray-plateau',
-    tag: 'Reflective & Low Energy',
-    description: 'Soft volume, steady low pitch, and extended pauses.',
-    insight:
-      'Your voice was soft, steady, and quiet today. You seem to be in a reflective or lower-energy state, carrying quiet thoughts.',
-    mindfulness: {
-      title: 'Energizing Breath (3-3)',
-      type: 'breathing',
-      pattern: [3, 0, 3, 0],
-      labels: ['Inhale', '', 'Exhale', ''],
-      instruction: 'Gently awaken your vitality with smooth, upbeat diaphragmatic breathing.',
-      color: '#a3a19b',
-    },
+    bgGradient: ['#fdede8', '#f8d5cb'],
+    terrainColors: ['#e8a091', '#dd7f72', '#c85f55', '#a8443d'],
+    scoreBase: 84,
   },
   thunderstorm: {
     id: 'thunderstorm',
     name: 'Stormy Peaks',
     palette: 'thunderstorm',
-    tag: 'High Intensity & Tension',
-    description: 'Rapid pace, volume spikes, and tense pitch variations.',
+    tagline: 'Rapid and intense — high variance, tense pitch spikes.',
     insight:
-      'Rapid pacing and pitch spikes suggest elevated stress or emotional intensity. You might be processing heavy thoughts or fatigue.',
-    mindfulness: {
-      title: '4-7-8 Relaxing Breath',
-      type: 'breathing',
-      pattern: [4, 7, 8, 0],
-      labels: ['Inhale', 'Hold', 'Exhale', ''],
-      instruction: 'Release nervous system tension with a long, soothing 8-second exhale.',
-      color: '#54527a',
+      'Rapid pacing and pitch spikes suggest elevated emotional intensity or stress. Taking a brief physical pause will help clear your mind.',
+    tryThisNext: {
+      title: 'Box Breathing (4-4-4-4)',
+      description:
+        'Inhale 4s, hold 4s, exhale 4s, hold 4s. Rhythmic box breathing lowers heart rate and calms your nervous system.',
     },
+    bgGradient: ['#ebeaf5', '#d9d7ec'],
+    terrainColors: ['#7c79a8', '#5e5a91', '#474378', '#322f5e'],
+    scoreBase: 42,
   },
 };
 
 /**
- * Classifies session audio metrics into a biome & mindfulness payload.
- * @param {Object} metrics
- * @param {number} metrics.avgVolume (0 to 1)
- * @param {number} metrics.volumeVariance (0 to 1)
- * @param {number} metrics.pitchVariance (0 to 1)
- * @param {number} metrics.durationSeconds
+ * Classifies session audio metrics into a biome & payload payload.
  */
 export function analyzeAudioSession(metrics = {}) {
   const {
@@ -97,20 +83,20 @@ export function analyzeAudioSession(metrics = {}) {
     durationSeconds = 15,
   } = metrics;
 
-  // Simple classification logic based on acoustic energy & variance
-  let biomeKey = 'meadow';
+  let biomeKey = 'volcanic';
 
   if (volumeVariance > 0.45 || pitchVariance > 0.5) {
-    biomeKey = 'thunderstorm';
+    biomeKey = 'volcanic';
   } else if (avgVolume > 0.5 && pitchVariance > 0.3) {
     biomeKey = 'mountain-range';
-  } else if (avgVolume < 0.25 || volumeVariance < 0.2) {
-    biomeKey = 'gray-plateau';
-  } else {
+  } else if (avgVolume < 0.35 && volumeVariance < 0.25) {
     biomeKey = 'meadow';
+  } else {
+    biomeKey = 'volcanic';
   }
 
   const biome = BIOMES[biomeKey];
+  const score = Math.min(99, Math.max(20, biome.scoreBase + Math.floor(pitchVariance * 20 - volumeVariance * 10)));
 
   return {
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -119,19 +105,19 @@ export function analyzeAudioSession(metrics = {}) {
     biomeKey,
     biomeName: biome.name,
     palette: biome.palette,
-    tag: biome.tag,
+    tagline: biome.tagline,
     insightMessage: biome.insight,
-    mindfulness: biome.mindfulness,
-    metricsSummary: {
-      intensityScore: Math.round(avgVolume * 100),
-      varianceScore: Math.round(pitchVariance * 100),
-    },
+    tryThisNext: biome.tryThisNext,
+    bgGradient: biome.bgGradient,
+    terrainColors: biome.terrainColors,
+    score: score,
   };
 }
 
 function formatDuration(sec) {
   const mins = Math.floor(sec / 60);
   const remainderSec = Math.floor(sec % 60);
-  if (mins === 0) return `${remainderSec}s`;
-  return `${mins}m ${remainderSec}s`;
+  const m = String(mins).padStart(2, '0');
+  const s = String(remainderSec).padStart(2, '0');
+  return `${m}:${s}`;
 }

@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { MicIcon } from './icons';
 import './LiveRecordingModal.css';
 
 export default function LiveRecordingModal({ onStop = () => {}, onCancel = () => {} }) {
-  const [seconds, setSeconds] = useState(0);
-  const [isSimulated, setIsSimulated] = useState(false);
+  const [seconds, setSeconds] = useState(4);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
 
   const canvasRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -14,11 +13,9 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
   const streamRef = useRef(null);
   const animationFrameRef = useRef(null);
 
-  // Metrics collection
   const metricsRef = useRef({
     volumeSamples: [],
     pitchSamples: [],
-    startTime: Date.now(),
   });
 
   useEffect(() => {
@@ -34,16 +31,14 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
         if (!isSubscribed) return;
         streamRef.current = stream;
 
-        // Setup MediaRecorder (from Kusum's reference)
         try {
           const recorder = new MediaRecorder(stream);
           mediaRecorderRef.current = recorder;
           recorder.start();
         } catch (e) {
-          console.warn('MediaRecorder init error:', e);
+          console.warn('MediaRecorder init:', e);
         }
 
-        // Setup Web Audio API Analyser
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         audioContextRef.current = audioCtx;
         const source = audioCtx.createMediaStreamSource(stream);
@@ -55,9 +50,8 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
 
         startCanvasAnimation(analyser);
       } catch (err) {
-        console.warn('Microphone access denied or unavailable. Switching to interactive simulation.', err);
+        console.warn('Microphone access fallback:', err);
         if (!isSubscribed) return;
-        setIsSimulated(true);
         startCanvasAnimation(null);
       }
     }
@@ -68,17 +62,27 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
       isSubscribed = false;
       clearInterval(timerInterval);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
+      cleanupAudioResources();
     };
   }, []);
+
+  const cleanupAudioResources = () => {
+    setTimeout(() => {
+      try {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+          mediaRecorderRef.current.stop();
+        }
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+        }
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close();
+        }
+      } catch (e) {
+        console.warn('Cleanup error:', e);
+      }
+    }, 50);
+  };
 
   const startCanvasAnimation = (analyserNode) => {
     const canvas = canvasRef.current;
@@ -88,10 +92,18 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
 
     const dataArray = new Uint8Array(64);
 
+    const particles = Array.from({ length: 30 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 2 + 1,
+      speed: Math.random() * 0.001 + 0.0005,
+      alpha: Math.random() * 0.7 + 0.3,
+    }));
+
     const render = () => {
-      time += 0.03;
-      const width = (canvas.width = canvas.clientWidth || window.innerWidth);
-      const height = (canvas.height = canvas.clientHeight || window.innerHeight);
+      time += 0.025;
+      const width = (canvas.width = canvas.clientWidth || 430);
+      const height = (canvas.height = canvas.clientHeight || 800);
 
       let currentVolume = 0;
       let currentPitchVar = 0;
@@ -107,13 +119,10 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
         currentVolume = sum / (dataArray.length * 255);
         currentPitchVar = peakFreq / dataArray.length;
       } else {
-        // Interactive acoustic simulation if mic unavailable
-        currentVolume = 0.25 + Math.sin(time * 2.5) * 0.2 + (Math.random() * 0.1);
-        currentPitchVar = 0.3 + Math.cos(time * 1.8) * 0.25;
+        currentVolume = 0.28 + Math.sin(time * 2) * 0.18 + Math.random() * 0.08;
+        currentPitchVar = 0.35 + Math.cos(time * 1.5) * 0.2;
         for (let i = 0; i < dataArray.length; i++) {
-          dataArray[i] = Math.floor(
-            128 + Math.sin(time * 3 + i * 0.2) * 80 + (Math.random() * 20)
-          );
+          dataArray[i] = Math.floor(130 + Math.sin(time * 2.5 + i * 0.2) * 70);
         }
       }
 
@@ -121,33 +130,27 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
       metricsRef.current.volumeSamples.push(currentVolume);
       metricsRef.current.pitchSamples.push(currentPitchVar);
 
-      // Render gradient background
       const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-      bgGrad.addColorStop(0, '#121019');
-      bgGrad.addColorStop(0.5, '#1e1a29');
-      bgGrad.addColorStop(1, '#0d0b12');
+      bgGrad.addColorStop(0, '#f2f7ef');
+      bgGrad.addColorStop(0.5, '#e4efdf');
+      bgGrad.addColorStop(1, '#bcd6b7');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Render glowing sun / energy orb
-      const orbX = width * 0.5;
-      const orbY = height * 0.28;
-      const orbRadius = 70 + currentVolume * 60;
-      const sunGrad = ctx.createRadialGradient(orbX, orbY, 5, orbX, orbY, orbRadius);
-      sunGrad.addColorStop(0, 'rgba(255, 200, 180, 0.9)');
-      sunGrad.addColorStop(0.4, 'rgba(232, 160, 145, 0.4)');
-      sunGrad.addColorStop(1, 'rgba(232, 160, 145, 0)');
-      ctx.fillStyle = sunGrad;
-      ctx.beginPath();
-      ctx.arc(orbX, orbY, orbRadius, 0, Math.PI * 2);
-      ctx.fill();
+      particles.forEach((p) => {
+        p.y -= p.speed;
+        if (p.y < 0) p.y = 1;
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x * width, p.y * height, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
 
-      // Render 4 layered procedural terrain ridges
       const layers = [
-        { color: 'rgba(232, 160, 145, 0.45)', base: 0.52, amp: 70, speed: 0.8 },
-        { color: 'rgba(221, 127, 114, 0.65)', base: 0.62, amp: 85, speed: 1.1 },
-        { color: 'rgba(200, 95, 85, 0.85)', base: 0.73, amp: 100, speed: 1.4 },
-        { color: 'rgba(168, 68, 61, 0.98)', base: 0.84, amp: 120, speed: 1.7 },
+        { color: 'rgba(215, 233, 209, 0.85)', base: 0.42, amp: 45, speed: 0.6 },
+        { color: 'rgba(195, 221, 188, 0.9)', base: 0.54, amp: 55, speed: 0.9 },
+        { color: 'rgba(165, 204, 157, 0.95)', base: 0.66, amp: 65, speed: 1.2 },
+        { color: '#97c78d', base: 0.78, amp: 75, speed: 1.5 },
       ];
 
       layers.forEach((layer, idx) => {
@@ -155,18 +158,18 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
         ctx.beginPath();
         ctx.moveTo(0, height);
 
-        const steps = 40;
+        const steps = 30;
         const sliceWidth = width / steps;
 
         for (let i = 0; i <= steps; i++) {
           const x = i * sliceWidth;
           const freqVal = dataArray[i % dataArray.length] / 255;
           const noise =
-            Math.sin(i * 0.25 + time * layer.speed + idx) *
-            Math.cos(i * 0.15 - time * 0.5);
+            Math.sin(i * 0.3 + time * layer.speed + idx) *
+            Math.cos(i * 0.2 - time * 0.4);
 
           const displacement =
-            (noise * layer.amp) + (freqVal * layer.amp * 1.5 * (currentVolume + 0.3));
+            noise * layer.amp + freqVal * layer.amp * 1.2 * (currentVolume + 0.4);
 
           const y = height * layer.base - displacement;
           if (i === 0) {
@@ -189,25 +192,27 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
   };
 
   const handleStopRecording = () => {
+    if (isExiting) return;
+    setIsExiting(true);
+
     const vols = metricsRef.current.volumeSamples;
     const pitches = metricsRef.current.pitchSamples;
 
-    const avgVol = vols.length ? vols.reduce((a, b) => a + b, 0) / vols.length : 0.35;
-    const maxVol = vols.length ? Math.max(...vols) : 0.5;
-    const minVol = vols.length ? Math.min(...vols) : 0.1;
-    const volVar = maxVol - minVol;
+    const avgVol = vols.length ? vols.reduce((a, b) => a + b, 0) / vols.length : 0.45;
+    const volVar = vols.length ? Math.max(...vols) - Math.min(...vols) : 0.35;
+    const pitchVar = pitches.length ? Math.max(...pitches) - Math.min(...pitches) : 0.4;
 
-    const avgPitch = pitches.length ? pitches.reduce((a, b) => a + b, 0) / pitches.length : 0.4;
-    const maxPitch = pitches.length ? Math.max(...pitches) : 0.6;
-    const minPitch = pitches.length ? Math.min(...pitches) : 0.2;
-    const pitchVar = maxPitch - minPitch;
-
-    onStop({
+    const payload = {
       avgVolume: avgVol,
       volumeVariance: volVar,
       pitchVariance: pitchVar,
       durationSeconds: seconds,
-    });
+    };
+
+    // Smooth transition delay (120ms) before triggering result popup
+    setTimeout(() => {
+      onStop(payload);
+    }, 120);
   };
 
   const formatTimer = (sec) => {
@@ -217,41 +222,33 @@ export default function LiveRecordingModal({ onStop = () => {}, onCancel = () =>
   };
 
   return (
-    <div className="live-recording-modal">
+    <div className={`live-recording-modal ${isExiting ? 'live-recording-modal--exiting' : ''}`}>
       <canvas ref={canvasRef} className="live-terrain-canvas" />
 
-      <header className="live-header">
-        <button type="button" className="close-btn" onClick={onCancel} aria-label="Cancel session">
-          ✕
+      <header className="live-header-screenshot">
+        <button type="button" className="back-circle-btn" onClick={onCancel} aria-label="Go back">
+          ←
         </button>
-        <div className="live-status">
-          <span className="live-dot" />
-          <span className="live-title">{isSimulated ? 'Simulated Voice' : 'Listening...'}</span>
-        </div>
-        <div className="timer-badge">{formatTimer(seconds)}</div>
+        <div className="timer-pill">{formatTimer(seconds)}</div>
       </header>
 
-      <main className="live-center">
-        <div className="mic-pulse-container" style={{ transform: `scale(${1 + audioLevel * 0.3})` }}>
-          <div className="pulse-ring ring-1" />
-          <div className="pulse-ring ring-2" />
-          <div className="mic-core">
-            <MicIcon />
-          </div>
+      <div className="listening-status-wrapper">
+        <div className="listening-status-pill">
+          Listening — quiet meadow forming
         </div>
-        <p className="pitch-caption">
-          Speak freely. Terrain is forming from your voice dynamics...
-        </p>
-      </main>
+      </div>
 
-      <footer className="live-footer">
+      <footer className="live-footer-screenshot">
         <button
           type="button"
-          className="stop-button"
+          className="blue-stop-button"
           onClick={handleStopRecording}
+          aria-label="Stop recording"
         >
-          <span className="stop-square" />
-          <span>Stop Recording</span>
+          <div className="blue-stop-outer-ring" style={{ transform: `scale(${1 + audioLevel * 0.25})` }} />
+          <div className="blue-stop-core">
+            <span className="stop-icon-square" />
+          </div>
         </button>
       </footer>
     </div>

@@ -1,29 +1,7 @@
-// Small decorative terrain illustration used for gallery/last-session previews.
-// `palette` selects a biome color scheme; more biomes can be added as the
-// classifier + real-time renderer come online.
+// Decorative terrain illustration used for larger previews (home screen's
+// "last terrain" card, and later the gallery/day-detail view).
 
-const PALETTES = {
-  'mountain-range': {
-    sky: ['#fbdcd2', '#f7c3b6'],
-    sun: 'rgba(255, 246, 235, 0.9)',
-    layers: ['#e8a091', '#dd7f72', '#c85f55', '#a8443d'],
-  },
-  meadow: {
-    sky: ['#dfeee0', '#c9e4cd'],
-    sun: 'rgba(255, 255, 245, 0.9)',
-    layers: ['#a9d0ab', '#87bd8f', '#5fa470', '#3f8557'],
-  },
-  'gray-plateau': {
-    sky: ['#e4e3e1', '#d3d2cf'],
-    sun: 'rgba(255, 255, 255, 0.6)',
-    layers: ['#b9b7b2', '#a3a19b', '#8b8983', '#6f6d68'],
-  },
-  thunderstorm: {
-    sky: ['#3a3a55', '#25243a'],
-    sun: 'rgba(210, 210, 255, 0.25)',
-    layers: ['#54527a', '#413f66', '#302e52', '#201f3d'],
-  },
-};
+import { getBiome } from '../lib/biomes';
 
 function jaggedPath(seed, baseline, amplitude, width, height) {
   // Deterministic pseudo-random jagged ridge so the same biome always
@@ -43,7 +21,7 @@ function jaggedPath(seed, baseline, amplitude, width, height) {
 }
 
 export default function TerrainPreview({ palette = 'mountain-range', className = '' }) {
-  const p = PALETTES[palette] || PALETTES['mountain-range'];
+  const p = getBiome(palette);
   const width = 400;
   const height = 220;
 
@@ -53,7 +31,7 @@ export default function TerrainPreview({ palette = 'mountain-range', className =
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="xMidYMid slice"
       role="img"
-      aria-label={`${palette.replace('-', ' ')} terrain preview`}
+      aria-label={`${p.label} terrain preview`}
     >
       <defs>
         <linearGradient id={`sky-${palette}`} x1="0" y1="0" x2="0" y2="1">

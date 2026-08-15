@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import HomeScreen from './screens/HomeScreen';
+import TimelineScreen from './screens/TimelineScreen';
 import LiveRecordingModal from './components/LiveRecordingModal';
 import ResultCardModal from './components/ResultCardModal';
 import { analyzeAudioSession } from './utils/audioAnalyzer';
 import './App.css';
 
 function App() {
+  const [screen, setScreen] = useState('home');
   const [isRecording, setIsRecording] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [sessionResult, setSessionResult] = useState(null);
-  const [lastSavedSession, setLastSavedSession] = useState(null);
+  const [savedSessions, setSavedSessions] = useState([]);
 
   const handleStartTalking = () => {
     setIsRecording(true);
@@ -28,7 +30,7 @@ function App() {
 
   const handleSaveResult = () => {
     if (sessionResult) {
-      setLastSavedSession(sessionResult);
+      setSavedSessions((prev) => [sessionResult, ...prev]);
     }
     setIsResultOpen(false);
   };
@@ -37,17 +39,27 @@ function App() {
     setIsResultOpen(false);
   };
 
-  const handleNavChange = (tabId) => {
-    console.log('Navigate to', tabId);
+  const handleOpenSession = (sessionId) => {
+    console.log('Open session details', sessionId);
   };
 
+  const lastSavedSession = savedSessions[0] || null;
+
   return (
-    <>
-      <HomeScreen
-        onStartTalking={handleStartTalking}
-        onNavChange={handleNavChange}
-        lastSession={lastSavedSession}
-      />
+    <div className="app-container">
+      {screen === 'reflections' ? (
+        <TimelineScreen
+          onNavChange={setScreen}
+          onOpenSession={handleOpenSession}
+          customSessions={savedSessions}
+        />
+      ) : (
+        <HomeScreen
+          onStartTalking={handleStartTalking}
+          onNavChange={setScreen}
+          lastSession={lastSavedSession}
+        />
+      )}
 
       {isRecording && (
         <LiveRecordingModal
@@ -63,8 +75,8 @@ function App() {
           onClose={handleCloseResult}
         />
       )}
-    </>
+    </div>
   );
 }
 
-export default App;
+export default App;
