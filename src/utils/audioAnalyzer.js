@@ -83,7 +83,7 @@ export function analyzeAudioSession(metrics = {}) {
     durationSeconds = 15,
   } = metrics;
 
-  let biomeKey = 'volcanic';
+  let biomeKey;
 
   if (volumeVariance > 0.45 || pitchVariance > 0.5) {
     biomeKey = 'volcanic';

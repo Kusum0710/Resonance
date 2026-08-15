@@ -6,8 +6,8 @@ import { sessions as initialSessions } from '../lib/sessions';
 import './TimelineScreen.css';
 
 export default function TimelineScreen({
-  onNavChange = () => {},
-  onOpenSession = () => {},
+  onNavChange = () => { },
+  onOpenSession = () => { },
   customSessions = [],
 }) {
   // Convert custom saved sessions to match timeline list format
