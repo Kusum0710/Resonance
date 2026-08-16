@@ -394,7 +394,7 @@ export function generateSelfAnalysisNote(transcript, biomeKey, metrics) {
     line3 = 'Self-note for future: Move your body physically before attempting difficult verbal boundary talks.';
   }
 
-  return [line1, line2, line3].join(' ');
+  return [line1, line2, line3];
 }
 
 export function analyzeAudioSession(audioMetrics = {}) {
@@ -445,11 +445,15 @@ export function analyzeAudioSession(audioMetrics = {}) {
   const biomeKey = nnResult.biomeKey;
   const biome = BIOMES_MAP[biomeKey] || BIOMES_MAP['volcanic'];
 
-  const analysisNarrative = generateSelfAnalysisNote(transcript, biomeKey, {
+  const analysisLines = generateSelfAnalysisNote(transcript, biomeKey, {
     meanPitchHz,
     meanEnergy,
     pitchVarianceNorm,
   });
+
+  console.log('biomeKey:', biomeKey);
+  console.log('transcript received:', JSON.stringify(transcript));
+  console.log('analysisLines computed:', analysisLines);
 
   const now = new Date();
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -472,7 +476,8 @@ export function analyzeAudioSession(audioMetrics = {}) {
     biomeName: biome.name,
     palette: biome.palette,
     tagline: biome.tagline,
-    insightMessage: analysisNarrative,
+    insightMessage: biome.insight,
+    analysisLines,
     quote: defaultQuote,
     trigger: biome.insight,
     tryThisNext: biome.tryThisNext,

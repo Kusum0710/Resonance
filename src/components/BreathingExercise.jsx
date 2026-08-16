@@ -70,7 +70,7 @@ const GROUNDING_QUESTIONS = [
   },
 ];
 
-export default function BreathingExercise({ initialTechniqueKey = 'box-breathing', onClose = () => {} }) {
+export default function BreathingExercise({ initialTechniqueKey = 'box-breathing', onClose = () => { } }) {
   const [selectedKey, setSelectedKey] = useState(initialTechniqueKey);
   const [isActive, setIsActive] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);

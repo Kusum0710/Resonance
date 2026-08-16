@@ -42,10 +42,11 @@ function App() {
   const handleStopRecording = (audioMetrics) => {
     setIsRecording(false);
     const resultPayload = analyzeAudioSession(audioMetrics);
+    console.log('transcript:', audioMetrics.transcript);
+    console.log('analysisLines:', resultPayload.analysisLines);
     setSessionResult(resultPayload);
     setIsResultOpen(true);
   };
-
   const handleCancelRecording = () => {
     setIsRecording(false);
   };
