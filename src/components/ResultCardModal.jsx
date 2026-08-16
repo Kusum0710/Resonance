@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import BreathingExercise from './BreathingExercise';
 import './ResultCardModal.css';
 
 export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { } }) {
+  const [isBreathingModalOpen, setIsBreathingModalOpen] = useState(false);
   const bgCanvasRef = useRef(null);
   const animFrameRef = useRef(null);
 
@@ -124,9 +126,9 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         </button>
       </header>
 
-      {/* Main White Card Modal matching Screenshot 2 (No 51/100 score badge) */}
+      {/* Main White Card Modal matching Screenshot 2 */}
       <div className="screenshot-result-card">
-        {/* Header row: Eyebrow only */}
+        {/* Header row: Eyebrow */}
         <div className="screenshot-card-header">
           <span className="screenshot-eyebrow">TODAY'S BIOME</span>
           {typeof intensity === 'number' && (
@@ -162,13 +164,17 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
           <span className="result-stat-pill">Duration: {sessionResult.duration || '20s'}</span>
         </div>
 
-        {/* Inner Box: TRY THIS NEXT */}
+        {/* Inner Box: TRY THIS NEXT (Interactive button to launch full-screen breathing exercise) */}
         {tryThisNext && (
-          <div className="try-this-next-box">
-            <span className="try-this-eyebrow">TRY THIS NEXT</span>
+          <button
+            type="button"
+            className="try-this-next-box try-this-next-box--clickable"
+            onClick={() => setIsBreathingModalOpen(true)}
+          >
+            <span className="try-this-eyebrow">TRY THIS NEXT &gt;</span>
             <h3 className="try-this-title">{tryThisNext.title}</h3>
             <p className="try-this-desc">{tryThisNext.description}</p>
-          </div>
+          </button>
         )}
 
         {/* Footer Actions */}
@@ -181,6 +187,14 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
           </button>
         </div>
       </div>
+
+      {/* Full-Screen Breathing Exercise View */}
+      {isBreathingModalOpen && (
+        <BreathingExercise
+          initialTechniqueKey={tryThisNext?.techniqueKey || 'box-breathing'}
+          onClose={() => setIsBreathingModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

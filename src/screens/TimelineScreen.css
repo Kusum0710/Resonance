@@ -6,8 +6,13 @@
   display: flex;
   flex-direction: column;
   background: var(--color-bg-soft, #f6f4ef);
-  padding: 24px 18px 90px;
-  overflow-x: hidden;
+  padding: 24px 18px 105px;
+  animation: fadeInScreen 0.25s ease-out forwards;
+}
+
+@keyframes fadeInScreen {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .timeline-header {
@@ -58,6 +63,68 @@
   gap: 16px;
 }
 
+/* Guided Breathing Card Banner in Dashboard */
+.breathing-card-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f7faf7 100%);
+  border: 1px solid rgba(135, 189, 143, 0.3);
+  border-left: 4px solid #87bd8f;
+  border-radius: 20px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 8px 20px -8px rgba(135, 189, 143, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.breathing-card-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(135, 189, 143, 0.35);
+}
+
+.breathing-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.banner-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #211d1a;
+  margin: 0;
+}
+
+.banner-desc {
+  font-size: 12px;
+  color: #6b6357;
+  margin: 2px 0 0 0;
+}
+
+.banner-start-btn {
+  background: #211d1a;
+  color: #ffffff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.banner-start-btn:hover {
+  background: #87bd8f;
+  transform: scale(1.03);
+}
+
 .dashboard-recent-section {
   display: flex;
   flex-direction: column;
@@ -94,153 +161,11 @@
   text-decoration: underline;
 }
 
-/* Detailed Day-by-Day Scroll List */
-.detailed-day-scroll-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dashboard-day-card {
-  background: var(--color-card, #ffffff);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: var(--shadow-card, 0 12px 28px -14px rgba(33, 29, 26, 0.18));
-  border: 1px solid rgba(33, 29, 26, 0.05);
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.dashboard-day-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px -12px rgba(33, 29, 26, 0.22);
-}
-
-.day-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.day-card-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.day-card-title-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 2px;
-}
-
-.day-card-weekday {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text, #211d1a);
-}
-
-.day-card-time {
-  font-size: 11.5px;
-  color: var(--color-text-muted, #948c7d);
-}
-
-.day-card-badge {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.day-card-intensity-box {
-  background: #fbf9f5;
-  border: 1px solid rgba(33, 29, 26, 0.06);
-  padding: 4px 8px;
-  border-radius: 10px;
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.day-intensity-val {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--color-text, #211d1a);
-}
-
-.day-intensity-sub {
-  font-size: 10px;
-  color: var(--color-text-muted, #948c7d);
-  font-weight: 600;
-}
-
-.day-card-quote {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--color-text, #211d1a);
-  line-height: 1.4;
-  margin: 0;
-}
-
-.day-card-analysis {
-  background: #f3f7f5;
-  border: 1px solid rgba(78, 168, 153, 0.18);
-  border-radius: 12px;
-  padding: 8px 10px;
-}
-
-.analysis-pill-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #27786b;
-  letter-spacing: 0.4px;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.analysis-p-text {
-  font-size: 12px;
-  color: #274b44;
-  line-height: 1.35;
-  margin: 0;
-}
-
-.day-card-prosody-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 4px;
-  border-top: 1px solid rgba(33, 29, 26, 0.04);
-}
-
-.prosody-stat {
-  font-size: 11px;
-  color: var(--color-text-muted, #948c7d);
-  font-weight: 500;
-}
-
 /* Timeline List & Month Views */
 .timeline-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.list-heading-meta {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-muted, #948c7d);
-  margin-bottom: 4px;
-}
-
-.timeline-month {
-  padding-bottom: 16px;
 }
 
 .timeline-month {
@@ -257,13 +182,14 @@
   border: none;
   border-radius: 20px;
   padding: 14px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card, 0 12px 28px -14px rgba(33, 29, 26, 0.18));
   cursor: pointer;
-  transition: transform 0.15s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .timeline-row:hover {
   transform: translateY(-2px);
+  box-shadow: 0 16px 32px -12px rgba(33, 29, 26, 0.22);
 }
 
 .timeline-row__body {

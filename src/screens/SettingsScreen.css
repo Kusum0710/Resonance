@@ -3,8 +3,10 @@
   max-width: 430px;
   min-height: 100dvh;
   min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg-soft);
-  padding: 28px 20px 110px;
+  padding: 24px 18px 95px;
   overflow-y: auto;
 }
 
