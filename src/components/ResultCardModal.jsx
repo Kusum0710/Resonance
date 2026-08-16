@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import BreathingExercise from './BreathingExercise';
+import { FEELING_LEVELS, getFeelingByLevel } from '../utils/audioAnalyzer';
+
 import './ResultCardModal.css';
 
-export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { } }) {
+export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { }, isArchiveView = false }) {
   const [isBreathingModalOpen, setIsBreathingModalOpen] = useState(false);
+  const [feelingLevel, setFeelingLevel] = useState(sessionResult?.feelingLevel || 8);
+
   const bgCanvasRef = useRef(null);
   const animFrameRef = useRef(null);
 
   const terrainColors = sessionResult?.terrainColors;
+  const currentFeeling = getFeelingByLevel(feelingLevel);
 
   // Render rich animated background terrain atmosphere
   useEffect(() => {
@@ -112,7 +117,13 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
     analysisLines = [],
     intensity,
     pitchHz,
+    dayOfWeek,
+    dateFormatted,
+    timestamp,
   } = sessionResult;
+
+  const archiveLabel = dayOfWeek || dateFormatted || timestamp || 'This Day';
+  const eyebrowText = isArchiveView ? `${archiveLabel}'s Biome` : "Today's Biome";
 
   return (
     <div className="screenshot-result-overlay">
@@ -130,7 +141,7 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
       <div className="screenshot-result-card">
         {/* Header row: Eyebrow */}
         <div className="screenshot-card-header">
-          <span className="screenshot-eyebrow">TODAY'S BIOME</span>
+          <span className="screenshot-eyebrow">{eyebrowText}</span>
           {typeof intensity === 'number' && (
             <span className="screenshot-intensity">
               Intensity: {intensity.toFixed(1)}/10
@@ -163,6 +174,52 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
           <span className="result-stat-pill">Pitch: {pitchHz || 210} Hz</span>
           <span className="result-stat-pill">Duration: {sessionResult.duration || '20s'}</span>
         </div>
+        {/* HOW ARE YOU FEELING QUESTION (10-level gradient bar) */}
+        <div className="feeling-question-box">
+          <div className="feeling-question-header">
+            <span className="feeling-question-label">How are you feeling?</span>
+            <span
+              className="feeling-status-chip"
+              style={{ color: currentFeeling.color, backgroundColor: currentFeeling.bg }}
+            >
+              <span className="feeling-status-emoji">{currentFeeling.emoji}</span>
+              <span className="feeling-status-text">{currentFeeling.label} ({feelingLevel}/10)</span>
+            </span>
+          </div>
+
+          {/* 10-level interactive bar */}
+          <div className="feeling-bar-container">
+            <span className="feeling-bar-anchor feeling-bar-anchor--left" title="Level 1: Gloomy">
+              ≡(▔﹏▔)≡
+            </span>
+            <div className="feeling-steps-track" role="radiogroup" aria-label="Feeling level 1 to 10">
+              {FEELING_LEVELS.map((item) => {
+                const isSelected = item.level === feelingLevel;
+                return (
+                  <button
+                    key={item.level}
+                    type="button"
+                    className={`feeling-step-btn ${isSelected ? 'feeling-step-btn--active' : ''}`}
+                    style={{
+                      '--step-color': item.color,
+                      '--step-glow': item.glow,
+                    }}
+                    onClick={() => setFeelingLevel(item.level)}
+                    title={`Level ${item.level}: ${item.label} ${item.emoji}`}
+                    aria-label={`Level ${item.level}: ${item.label}`}
+                    aria-checked={isSelected}
+                    role="radio"
+                  >
+                    <span className="feeling-step-fill" />
+                  </button>
+                );
+              })}
+            </div>
+            <span className="feeling-bar-anchor feeling-bar-anchor--right" title="Level 10: Happy">
+              (❁´◡`❁)
+            </span>
+          </div>
+        </div>
 
         {/* Inner Box: TRY THIS NEXT (Interactive button to launch full-screen breathing exercise) */}
         {tryThisNext && (
@@ -178,14 +235,22 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         )}
 
         {/* Footer Actions */}
-        <div className="screenshot-card-actions">
-          <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
-            Discard
-          </button>
-          <button type="button" className="screenshot-btn-primary" onClick={onSave}>
-            Save Reflection
-          </button>
-        </div>
+        {isArchiveView ? (
+          <div className="screenshot-card-actions screenshot-card-actions--single">
+            <button type="button" className="screenshot-btn-primary" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        ) : (
+          <div className="screenshot-card-actions">
+            <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
+              Discard
+            </button>
+            <button type="button" className="screenshot-btn-primary" onClick={onSave}>
+              Save Reflection
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Full-Screen Breathing Exercise View */}
