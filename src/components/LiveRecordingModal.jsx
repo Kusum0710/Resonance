@@ -272,7 +272,7 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
 
       <div className="listening-status-wrapper">
         <div className="listening-status-pill">
-          Listening — quiet meadow forming
+          Listening — forming voice terrain...
         </div>
       </div>
 

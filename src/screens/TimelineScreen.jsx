@@ -26,6 +26,7 @@ export default function TimelineScreen({
 }) {
   const [view, setView] = useState('dashboard');
   const [selectedDetailSession, setSelectedDetailSession] = useState(null);
+  const [isBreathingModalOpen, setIsBreathingModalOpen] = useState(false);
 
   const storedSessions = getStoredSessions();
 
@@ -53,7 +54,7 @@ export default function TimelineScreen({
 
   return (
     <div className="timeline-screen">
-      {/* Screen Header matching screenshot */}
+      {/* Screen Header matching design system */}
       <header className="timeline-header">
         <div>
           <span className="timeline-eyebrow">VOCAL PROSODY ARCHIVE</span>
@@ -72,23 +73,38 @@ export default function TimelineScreen({
       {/* Main Content Areas */}
       {view === 'dashboard' && (
         <div className="reflections-dashboard">
-          {/* 1. Weekly Prosody Trend Graph Card (Light mode) */}
+          {/* 1. Weekly Prosody Trend Graph Card */}
           <WeeklyProsodyChart
             sessions={allSessions}
             onSelectDay={handleSelectDay}
             onOpenCalendar={() => setView('month')}
           />
 
-          {/* 2. Minimal Visualisation of Terrain Shifting */}
+          {/* 2. Visualisation of Terrain Shifting */}
           <TerrainShiftWave
             sessions={allSessions}
             onSelectSession={handleSelectDay}
           />
 
-          {/* 3. Executable Breathing Exercises & Relaxing Techniques */}
-          <BreathingExercise />
+          {/* 3. Mindfulness & Breathing Card */}
+          <section className="breathing-card-banner">
+            <div className="breathing-banner-content">
+              <span className="banner-icon">🫁</span>
+              <div>
+                <h3 className="banner-title">Guided Breathing &amp; Relaxation</h3>
+                <p className="banner-desc">4-7-8 Deep Rest, Box Breathing &amp; Resonant Coherence</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="banner-start-btn"
+              onClick={() => setIsBreathingModalOpen(true)}
+            >
+              Start Exercise
+            </button>
+          </section>
 
-          {/* 4. Detailed Day-by-Day Reflections with Vertical Scrolling */}
+          {/* 4. Detailed Day-by-Day Reflections */}
           <section className="dashboard-recent-section">
             <div className="section-title-row">
               <h3 className="section-title">Past Reflections &amp; Self-Notes</h3>
@@ -101,62 +117,40 @@ export default function TimelineScreen({
               </button>
             </div>
 
-            <div className="detailed-day-scroll-list">
-              {allSessions.slice(0, 3).map((session) => {
+            <div className="timeline-list">
+              {allSessions.slice(0, 5).map((session) => {
                 const biome = getBiome(session.palette);
                 return (
-                  <article
+                  <button
                     key={session.id}
-                    className="dashboard-day-card"
+                    type="button"
+                    className="timeline-row"
                     onClick={() => handleSelectDay(session)}
                   >
-                    <div className="day-card-top">
-                      <div className="day-card-left">
-                        <TerrainSwatch palette={session.palette} />
-                        <div>
-                          <div className="day-card-title-row">
-                            <span className="day-card-weekday">
-                              {session.dayOfWeek || 'Reflection'}
-                            </span>
-                            <span className="day-card-time">
-                              {session.timeAgo} {session.timeFormatted ? `· ${session.timeFormatted}` : ''}
-                            </span>
-                          </div>
-                          <span
-                            className="day-card-badge"
-                            style={{ background: biome.badgeBg, color: biome.badgeText }}
-                          >
-                            {session.biomeName || biome.label}
-                          </span>
-                        </div>
-                      </div>
+                    <TerrainSwatch palette={session.palette} />
 
-                      <div className="day-card-intensity-box">
-                        <span className="day-intensity-val">
-                          {session.intensity?.toFixed(1) || '5.0'}
+                    <div className="timeline-row__body">
+                      <div className="timeline-row__meta">
+                        <span
+                          className="timeline-badge"
+                          style={{ background: biome.badgeBg, color: biome.badgeText }}
+                        >
+                          {session.biomeName || biome.label}
                         </span>
-                        <span className="day-intensity-sub">/10</span>
+                        <span className="timeline-row__time">
+                          {session.dayOfWeek ? `${session.dayOfWeek}, ` : ''}{session.timeAgo} · {session.duration}
+                        </span>
                       </div>
+                      <p className="timeline-row__quote">&ldquo;{session.quote || session.insightMessage}&rdquo;</p>
+                      {session.trigger && (
+                        <p className="timeline-row__trigger">
+                          <strong>Trigger:</strong> {session.trigger}
+                        </p>
+                      )}
                     </div>
 
-                    {/* Spoken Quote */}
-                    <p className="day-card-quote">&ldquo;{session.quote}&rdquo;</p>
-
-                    {/* Trigger & 2-3 Line Self-Analysis Note */}
-                    <div className="day-card-analysis">
-                      <span className="analysis-pill-label">WHY YOU FELT THIS WAY</span>
-                      <p className="analysis-p-text">
-                        {session.trigger || (session.analysisLines && session.analysisLines[0])}
-                      </p>
-                    </div>
-
-                    {/* Prosody Micro-metrics */}
-                    <div className="day-card-prosody-row">
-                      <span className="prosody-stat">Pitch: {session.pitchHz || 190} Hz</span>
-                      <span className="prosody-stat">Energy: {session.energyPct || 45}%</span>
-                      <span className="prosody-stat">Duration: {session.duration || '28s'}</span>
-                    </div>
-                  </article>
+                    <ChevronRightIcon className="timeline-row__chevron" />
+                  </button>
                 );
               })}
             </div>
@@ -166,10 +160,6 @@ export default function TimelineScreen({
 
       {view === 'list' && (
         <div className="timeline-list">
-          <div className="list-heading-meta">
-            <span>Detailed Day-by-Day Historical Log</span>
-          </div>
-
           {allSessions.map((session) => {
             const biome = getBiome(session.palette);
             return (
@@ -193,10 +183,12 @@ export default function TimelineScreen({
                       {session.dayOfWeek ? `${session.dayOfWeek}, ` : ''}{session.timeAgo} · {session.duration}
                     </span>
                   </div>
-                  <p className="timeline-row__quote">&ldquo;{session.quote}&rdquo;</p>
-                  <p className="timeline-row__trigger">
-                    <strong>Trigger:</strong> {session.trigger}
-                  </p>
+                  <p className="timeline-row__quote">&ldquo;{session.quote || session.insightMessage}&rdquo;</p>
+                  {session.trigger && (
+                    <p className="timeline-row__trigger">
+                      <strong>Trigger:</strong> {session.trigger}
+                    </p>
+                  )}
                 </div>
 
                 <ChevronRightIcon className="timeline-row__chevron" />
@@ -210,6 +202,11 @@ export default function TimelineScreen({
         <div className="timeline-month">
           <MonthCalendar sessions={allSessions} onSelectDay={handleCalendarSelectDay} />
         </div>
+      )}
+
+      {/* Breathing Exercise Modal Overlay */}
+      {isBreathingModalOpen && (
+        <BreathingExercise onClose={() => setIsBreathingModalOpen(false)} />
       )}
 
       {/* Day Detail Inspection Modal */}

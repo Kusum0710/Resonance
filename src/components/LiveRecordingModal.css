@@ -61,8 +61,9 @@
   background: rgba(255, 255, 255, 0.9);
   border: none;
   color: #2b3329;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
