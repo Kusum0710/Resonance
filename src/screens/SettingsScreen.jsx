@@ -1,5 +1,6 @@
 import { useState } from "react";
 import BottomNav from "../components/BottomNav";
+import { downloadSessionsReport } from "../utils/exportReport";
 import "./SettingsScreen.css";
 
 export default function SettingsScreen({
@@ -7,6 +8,9 @@ export default function SettingsScreen({
   onClearHistory = () => {},
   temporaryRecordings = true,
   onTemporaryRecordingsChange = () => {},
+  onDeviceAnalysis = true,
+  onOnDeviceAnalysisChange = () => {},
+  sessions = [],
 }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [name, setName] = useState(
@@ -55,7 +59,16 @@ export default function SettingsScreen({
                 <span>Your voice analysis stays on your device.</span>
               </div>
 
-              <span className="settings-status">ON</span>
+              <button
+                type="button"
+                className={`settings-status-toggle ${
+                  onDeviceAnalysis ? "settings-status-toggle--on" : ""
+                }`}
+                onClick={() => onOnDeviceAnalysisChange(!onDeviceAnalysis)}
+                aria-pressed={onDeviceAnalysis}
+              >
+                {onDeviceAnalysis ? "ON" : "OFF"}
+              </button>
             </div>
 
             <div className="settings-divider" />
@@ -89,7 +102,17 @@ export default function SettingsScreen({
           <p className="settings-section-title">YOUR DATA</p>
 
           <div className="settings-card settings-card--stacked">
-            <button type="button" className="settings-row settings-row--button">
+            <button
+              type="button"
+              className="settings-row settings-row--button"
+              onClick={() => {
+                if (!sessions.length) {
+                  window.alert("You don't have any reflections saved yet.");
+                  return;
+                }
+                downloadSessionsReport(sessions);
+              }}
+            >
               <div className="settings-icon">↓</div>
 
               <div className="settings-card-content">
