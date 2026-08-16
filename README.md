@@ -64,13 +64,15 @@ Traditional mood tracking and mental wellness tools are broken:
                └──────────────┬───────────────┘
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  6 Vocal Biomarker Metrics                  │
-│  [Pitch Var, Mean Energy, Energy Var, Rate, Pauses, Jitter] │
+│               Statistical Feature Aggregation               │
+│ Semitone-normalized pitch variance, WPM cadence, pause      │
+│ density, energy variance, spectral flux jitter              │           
 └─────────────────────────────┬───────────────────────────────┘
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│         On-Device 3-Layer Perceptron (316 Parameters)        │
-│       Input (6) ➔ Dense (8, ReLU) ➔ Dense (8) ➔ Softmax (5) │
+│ Multi-Factor Probabilistic Biome Classifier                 │
+│ 5 independent, explainable scoring functions (one per biome)| 
+|  → Softmax normalization → highest-probability wins         │
 └─────────────────────────────┬───────────────────────────────┘
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -84,13 +86,17 @@ Traditional mood tracking and mental wellness tools are broken:
 * **Spectral Energy (RMS)**: Computes root-mean-square amplitude to capture dynamics between quiet whispers, normal cadence, and elevated pitch spikes.
 * **Temporal Speech Rhythms**: Measures syllable rate and pause density (ratio of unvoiced silence intervals to total speaking time).
 
-### 2. Neural Classification Architecture
-* A dedicated 3-layer neural network runs purely in vanilla JavaScript client-side:
-  $$\mathbf{h}_1 = \text{ReLU}(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)$$
-  $$\mathbf{h}_2 = \text{ReLU}(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)$$
-  $$\mathbf{y} = \text{Softmax}(\mathbf{W}_3 \mathbf{h}_2 + \mathbf{b}_3)$$
-* **Latency**: $< 1.2\text{ms}$ inference time on mobile browsers.
-* **Zero network roundtrips**: Runs 100% offline.
+### 2. Probabilistic Biome Classification
+Rather than a black-box model, Resonance uses five independent, hand-calibrated scoring functions — one per biome — each built from acoustically meaningful thresholds:
+
+```js
+// Simplified example: Thunderstorm scoring
+thunderScore += speechRateNorm * 3.6;
+thunderScore += (1 - pauseDensity) * 3.0;
+thunderScore += jitterNorm * 2.2;
+if (wpm >= 165) thunderScore += 2.0;
+if (pauseDensity < 0.14) thunderScore += 1.5;
+```
 
 ---
 
@@ -140,9 +146,9 @@ Traditional mood tracking and mental wellness tools are broken:
 | :--- | :--- | :--- |
 | **Raw Voice Audio** | Discarded immediately after DSP analysis; never saved to disk | Uploaded to remote servers / S3 buckets |
 | **Data Storage** | 100% Local Device Storage (`localStorage`) | Centralized relational / cloud databases |
-| **AI Inference** | On-device JavaScript neural network | Server-side cloud LLM endpoints |
+| **AI Inference** | On-device JavaScript probability model | Server-side cloud LLM endpoints |
 | **Account Creation** | Zero sign-up, zero logins, zero telemetry | Mandatory emails, profiles, and tracking IDs |
-| **Offline Capability** | Fully functional without internet connection | Fails without active network connection |
+| **Classification Logic** | Transparent, rule-based acoustic scoring — fully auditable | Opaque trained models, unclear decision boundaries |
 
 ---
 
@@ -242,6 +248,7 @@ resonance/
 - [ ] **WASM Acoustic Engine**: Compile custom C++ DSP filters (Mel-Filterbank Cepstral Coefficients) into WebAssembly for sub-millisecond edge profiling.
 - [ ] **Spatial Audio Sonification**: Procedurally synthesize relaxing 3D spatial soundscapes reflecting the user's terrain in binaural audio.
 - [ ] **Encrypted Decentralized Sync**: Optional end-to-end encrypted backup using user-owned decentralized keys (Web3 / DID / passkeys).
+- [ ] **Robust On-Device Transcription**: Complete the transformers.js/Whisper fallback for network-independent transcription (currently falls back to Web Speech API, which requires connectivity).
 
 ---
 
