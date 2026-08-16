@@ -178,7 +178,7 @@ export function getStoredSessions() {
       return initialSessions;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length ? parsed : initialSessions;
+    return Array.isArray(parsed) ? parsed : initialSessions;
   } catch (e) {
     console.warn('Storage read error:', e);
     return initialSessions;
@@ -208,4 +208,14 @@ export const sessions = initialSessions;
 export function getSessionByDate(dateStr) {
   const all = getStoredSessions();
   return all.find((s) => s.date === dateStr);
+}
+
+export function clearStoredSessions() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    return [];
+  } catch (e) {
+    console.warn('Storage clear error:', e);
+    return [];
+  }
 }

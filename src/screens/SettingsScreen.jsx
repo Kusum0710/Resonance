@@ -1,15 +1,18 @@
-import BottomNav from '../components/BottomNav';
-import './SettingsScreen.css';
+import BottomNav from "../components/BottomNav";
+import "./SettingsScreen.css";
 
-export default function SettingsScreen({ onNavChange = () => {} }) {
+export default function SettingsScreen({
+  onNavChange = () => {},
+  onClearHistory = () => {},
+  temporaryRecordings = true,
+  onTemporaryRecordingsChange = () => {},
+}) {
   return (
     <div className="settings-screen">
       <header className="settings-header">
         <p className="settings-eyebrow">VOICE TERRAIN</p>
         <h1>Settings</h1>
-        <p className="settings-subtitle">
-          Make the app feel right for you.
-        </p>
+        <p className="settings-subtitle">Make the app feel right for you.</p>
       </header>
 
       <main className="settings-content">
@@ -17,7 +20,10 @@ export default function SettingsScreen({ onNavChange = () => {} }) {
         <section className="settings-section">
           <p className="settings-section-title">PROFILE</p>
 
-          <button type="button" className="settings-card settings-card--profile">
+          <button
+            type="button"
+            className="settings-card settings-card--profile"
+          >
             <div className="profile-avatar">R</div>
 
             <div className="settings-card-content">
@@ -55,7 +61,18 @@ export default function SettingsScreen({ onNavChange = () => {} }) {
                 <span>Audio is only kept for the current session.</span>
               </div>
 
-              <span className="settings-status">ON</span>
+              <button
+                type="button"
+                className={`settings-status-toggle ${
+                  temporaryRecordings ? "settings-status-toggle--on" : ""
+                }`}
+                onClick={() =>
+                  onTemporaryRecordingsChange(!temporaryRecordings)
+                }
+                aria-pressed={temporaryRecordings}
+              >
+                {temporaryRecordings ? "ON" : "OFF"}
+              </button>
             </div>
           </div>
         </section>
@@ -81,6 +98,15 @@ export default function SettingsScreen({ onNavChange = () => {} }) {
             <button
               type="button"
               className="settings-row settings-row--button settings-row--danger"
+              onClick={() => {
+                const confirmed = window.confirm(
+                  "Clear all your saved reflections? This cannot be undone.",
+                );
+
+                if (confirmed) {
+                  onClearHistory();
+                }
+              }}
             >
               <div className="settings-icon">×</div>
 
