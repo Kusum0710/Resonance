@@ -116,12 +116,24 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
       samplesRef.current.fluxes.push(currentFlux);
 
       // Dynamic status hint based on prosody
-      if (currentVolume > 0.6) {
-        setLiveBiomeHint('High energy surge — volcanic peaks rising');
-      } else if (currentPitch && currentPitch > 230) {
-        setLiveBiomeHint('High pitch variance — mountain range forming');
-      } else if (currentVolume < 0.2 && time > 2) {
-        setLiveBiomeHint('Quiet rhythm — meadow valley settling');
+      const recentVols = samplesRef.current.volumes.slice(-40);
+      const recentPitches = samplesRef.current.pitches.slice(-40);
+      const avgVol = recentVols.length ? recentVols.reduce((a, b) => a + b, 0) / recentVols.length : currentVolume;
+
+      if (time > 1.5) {
+        if (avgVol > 0.55 || currentVolume > 0.65) {
+          setLiveBiomeHint('High vocal power — volcanic peaks rising 🌋');
+        } else if (currentFlux > 0.35 && avgVol > 0.35) {
+          setLiveBiomeHint('Rapid acoustic shifts — thunderstorm forming ⚡');
+        } else if (recentPitches.length > 8 && Math.max(...recentPitches) - Math.min(...recentPitches) > 60) {
+          setLiveBiomeHint('Melodic pitch inflection — mountain range forming 🏔️');
+        } else if (recentPitches.length > 8 && Math.max(...recentPitches) - Math.min(...recentPitches) < 20 && avgVol < 0.35) {
+          setLiveBiomeHint('Steady even tone — gray plateau leveling 🌫️');
+        } else if (avgVol < 0.28) {
+          setLiveBiomeHint('Gentle cadence — quiet meadow settling 🌿');
+        } else {
+          setLiveBiomeHint('Listening — voice terrain forming...');
+        }
       }
 
       // Background gradient
@@ -142,12 +154,12 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
         ctx.fill();
       });
 
-      // Animated multi-layer mountain ridges responding to prosody
+      // Animated multi-layer mountain ridges with frequency-to-terrain harmonic mapping
       const layers = [
-        { color: 'rgba(215, 233, 209, 0.85)', base: 0.42, amp: 45, speed: 0.6 },
-        { color: 'rgba(195, 221, 188, 0.9)', base: 0.54, amp: 55, speed: 0.9 },
-        { color: 'rgba(165, 204, 157, 0.95)', base: 0.66, amp: 65, speed: 1.2 },
-        { color: '#97c78d', base: 0.78, amp: 75, speed: 1.5 },
+        { color: 'rgba(215, 233, 209, 0.85)', base: 0.42, amp: 40, speed: 0.5, freqWeight: 0.6 },
+        { color: 'rgba(195, 221, 188, 0.9)', base: 0.54, amp: 50, speed: 0.8, freqWeight: 0.9 },
+        { color: 'rgba(165, 204, 157, 0.95)', base: 0.66, amp: 60, speed: 1.1, freqWeight: 1.2 },
+        { color: '#97c78d', base: 0.78, amp: 70, speed: 1.4, freqWeight: 1.5 },
       ];
 
       layers.forEach((layer, idx) => {
@@ -155,18 +167,19 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
         ctx.beginPath();
         ctx.moveTo(0, height);
 
-        const steps = 32;
+        const steps = 36;
         const sliceWidth = width / steps;
 
         for (let i = 0; i <= steps; i++) {
           const x = i * sliceWidth;
-          const freqVal = dataArray[i % dataArray.length] / 255;
-          const noise =
-            Math.sin(i * 0.3 + time * layer.speed + idx) *
-            Math.cos(i * 0.2 - time * 0.4);
+          // Frequency band interpolation (bass to treble)
+          const freqIndex = Math.min(dataArray.length - 1, Math.floor((i / steps) * 24 + idx * 4));
+          const freqVal = (dataArray[freqIndex] || 0) / 255;
+          const harmonic = Math.sin(i * 0.28 + time * layer.speed + idx * 0.5) * Math.cos(i * 0.18 - time * 0.3);
 
           const displacement =
-            noise * layer.amp + freqVal * layer.amp * 1.3 * (currentVolume + 0.35);
+            harmonic * layer.amp +
+            freqVal * layer.amp * layer.freqWeight * (currentVolume * 1.5 + 0.3);
 
           const y = height * layer.base - displacement;
           if (i === 0) {

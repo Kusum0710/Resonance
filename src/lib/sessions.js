@@ -20,6 +20,7 @@ export const initialSessions = [
     energyPct: 72,
     speechRate: '142 wpm',
     pauseDensity: '18%',
+    feelingLevel: 5,
     quote: 'Morning walk in the breeze. Feeling energized and excited for the weekend project.',
     trigger: 'A serene start to the weekend and creative clarity lifted vocal vitality.',
     analysisLines: [
@@ -43,6 +44,8 @@ export const initialSessions = [
     energyPct: 75,
     speechRate: '148 wpm',
     pauseDensity: '15%',
+    feelingLevel: 5,
+
     quote: 'Caught up with an old friend over coffee, it was such a nice surprise.',
     trigger: 'An unplanned, pleasant catch-up kept your delivery animated and expressive.',
     analysisLines: [
@@ -66,6 +69,7 @@ export const initialSessions = [
     energyPct: 88,
     speechRate: '162 wpm',
     pauseDensity: '22%',
+    feelingLevel: 5,
     quote: "Someone completely ignored the boundary I set last week and I'm furious about it.",
     trigger: 'A boundary violation provoked short, high-intensity bursts between long pauses.',
     analysisLines: [
@@ -89,6 +93,7 @@ export const initialSessions = [
     energyPct: 78,
     speechRate: '150 wpm',
     pauseDensity: '16%',
+    feelingLevel: 5,
     quote: 'We finally shipped the feature and the feedback has been incredible so far.',
     trigger: 'Shared achievement and creative validation lifted your pitch variance.',
     analysisLines: [
@@ -112,6 +117,7 @@ export const initialSessions = [
     energyPct: 16,
     speechRate: '108 wpm',
     pauseDensity: '38%',
+    feelingLevel: 5,
     quote: 'Was reminiscing about my college friends today, felt really warm thinking about it.',
     trigger: 'Nostalgic reflection and gentle longing softened your tone into a steady, even register.',
     analysisLines: [
@@ -135,6 +141,7 @@ export const initialSessions = [
     energyPct: 70,
     speechRate: '175 wpm',
     pauseDensity: '12%',
+    feelingLevel: 5,
     quote: "I have so many unread messages and the deck is due tomorrow and I don't know where to start.",
     trigger: 'High task volume and an impending deadline spiked your pace and pitch jitter.',
     analysisLines: [
@@ -158,6 +165,7 @@ export const initialSessions = [
     energyPct: 24,
     speechRate: '115 wpm',
     pauseDensity: '30%',
+    feelingLevel: 5,
     quote: 'Just finished back to back sprint reviews. Feeling pretty flat and numb, honestly.',
     trigger: 'Cognitive overload from long meetings flattened your usual pitch range.',
     analysisLines: [
@@ -194,6 +202,18 @@ export function saveSessionToStorage(newSession) {
   } catch (e) {
     console.warn('Storage save error:', e);
     return [newSession, ...initialSessions];
+  }
+}
+
+export function updateStoredSession(sessionId, updates = {}) {
+  try {
+    const current = getStoredSessions();
+    const updated = current.map((s) => (s.id === sessionId ? { ...s, ...updates } : s));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    return updated;
+  } catch (e) {
+    console.warn('Storage update error:', e);
+    return getStoredSessions();
   }
 }
 export function getPast7DaysSessions(allSessions = []) {

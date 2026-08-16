@@ -9,6 +9,7 @@ import { analyzeAudioSession } from "./utils/audioAnalyzer";
 import {
   getStoredSessions,
   saveSessionToStorage,
+  updateStoredSession,
   clearStoredSessions,
 } from "./lib/sessions";
 import "./App.css";
@@ -25,18 +26,9 @@ function App() {
     return localStorage.getItem("resonance_temporary_recordings") !== "false";
   });
 
-  const [onDeviceAnalysis, setOnDeviceAnalysis] = useState(() => {
-    return localStorage.getItem("resonance_on_device_analysis") !== "false";
-  });
-
   const handleTemporaryRecordingsChange = (enabled) => {
     setTemporaryRecordings(enabled);
     localStorage.setItem("resonance_temporary_recordings", String(enabled));
-  };
-
-  const handleOnDeviceAnalysisChange = (enabled) => {
-    setOnDeviceAnalysis(enabled);
-    localStorage.setItem("resonance_on_device_analysis", String(enabled));
   };
 
   const handleStartTalking = () => {
@@ -51,8 +43,6 @@ function App() {
   const handleStopRecording = (audioMetrics) => {
     setIsRecording(false);
     const resultPayload = analyzeAudioSession(audioMetrics);
-    console.log('transcript:', audioMetrics.transcript);
-    console.log('analysisLines:', resultPayload.analysisLines);
     setSessionResult(resultPayload);
     setIsResultOpen(true);
   };
@@ -60,9 +50,10 @@ function App() {
     setIsRecording(false);
   };
 
-  const handleSaveResult = () => {
-    if (sessionResult) {
-      const updated = saveSessionToStorage(sessionResult);
+  const handleSaveResult = (customPayload) => {
+    const payloadToSave = customPayload || sessionResult;
+    if (payloadToSave) {
+      const updated = saveSessionToStorage(payloadToSave);
       setSavedSessions(updated);
     }
     setIsResultOpen(false);
@@ -81,6 +72,14 @@ function App() {
     }
   };
 
+  const handleUpdateSession = (sessionId, updates) => {
+    const updated = updateStoredSession(sessionId, updates);
+    setSavedSessions(updated);
+    if (activeDetailSession && activeDetailSession.id === sessionId) {
+      setActiveDetailSession((prev) => (prev ? { ...prev, ...updates } : prev));
+    }
+  };
+
   const lastSavedSession = savedSessions[0] || null;
 
   return (
@@ -89,6 +88,7 @@ function App() {
         <TimelineScreen
           onNavChange={setScreen}
           onOpenSession={handleOpenSession}
+          onUpdateSession={handleUpdateSession}
           customSessions={savedSessions}
         />
       ) : screen === "settings" ? (
@@ -97,9 +97,6 @@ function App() {
           onClearHistory={handleClearHistory}
           temporaryRecordings={temporaryRecordings}
           onTemporaryRecordingsChange={handleTemporaryRecordingsChange}
-          onDeviceAnalysis={onDeviceAnalysis}
-          onOnDeviceAnalysisChange={handleOnDeviceAnalysisChange}
-          sessions={savedSessions}
         />
       ) : (
         <HomeScreen
@@ -120,6 +117,7 @@ function App() {
       {/* Immediate Session Result Modal */}
       {isResultOpen && sessionResult && (
         <ResultCardModal
+          key={sessionResult.id}
           sessionResult={sessionResult}
           onSave={handleSaveResult}
           onClose={handleCloseResult}
@@ -129,8 +127,10 @@ function App() {
       {/* Dedicated Day Detail Modal */}
       {activeDetailSession && (
         <DayDetailModal
+          key={activeDetailSession.id}
           session={activeDetailSession}
           onClose={() => setActiveDetailSession(null)}
+          onUpdateSession={handleUpdateSession}
         />
       )}
     </div>
