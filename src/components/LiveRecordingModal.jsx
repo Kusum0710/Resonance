@@ -277,11 +277,18 @@ export default function LiveRecordingModal({ onStop = () => { }, onCancel = () =
             }
           };
 
-          recorder.onstop = () => {
-            const audioBlob = new Blob(audioChunksRef.current, {
-              type: recorder.mimeType || 'audio/webm',
-            });
+          recorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
             audioURLRef.current = URL.createObjectURL(audioBlob);
+            try {
+              const { transcribeAudioBlob } = await import('../utils/transcribeLocal');
+              const text = await transcribeAudioBlob(audioBlob);
+              transcriptRef.current = text;
+              setLiveTranscript(text);
+            } catch (err) {
+              console.warn('Local transcription failed:', err);
+              setTranscriptionFailed(true);
+            }
           };
 
           recorder.start();
