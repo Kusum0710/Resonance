@@ -18,30 +18,30 @@ const defaultLastTerrain = {
 };
 
 export default function HomeScreen({
-  onStartTalking = () => {},
-  onNavChange = () => {},
+  onStartTalking = () => { },
+  onNavChange = () => { },
   lastSession = null,
 }) {
   const [pressed, setPressed] = useState(false);
 
   const displayTerrain = lastSession
     ? {
-        palette: lastSession.palette,
-        label: lastSession.biomeName,
-        timeAgo: lastSession.dateFormatted || 'Just now',
-      }
+      palette: lastSession.palette,
+      label: lastSession.biomeName,
+      timeAgo: lastSession.dateFormatted || 'Just now',
+    }
     : defaultLastTerrain;
 
   return (
     <div className="home-screen">
       <header className="home-header">
-        <p className="eyebrow">Voice Terrain</p>
+        <p className="eyebrow">Resonance</p>
         <h1 className="greeting">
           {getGreeting()}
           <br />
           How was your day?
         </h1>
-        <p className="subtext">You don't have to find the right words. Any words are fine.</p>
+        <p className="subtext">You don't have to find the right words. We hear you</p>
       </header>
 
       <div className="record-section">
@@ -61,7 +61,7 @@ export default function HomeScreen({
             <span className="record-button__label">Start talking</span>
           </span>
         </button>
-        <p className="record-caption">Nothing leaves your device. Humming counts.</p>
+        <p className="record-caption">Nothing leaves your device.</p>
       </div>
 
       <section className="last-terrain">

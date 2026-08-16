@@ -4,12 +4,12 @@ import { downloadSessionsReport } from "../utils/exportReport";
 import "./SettingsScreen.css";
 
 export default function SettingsScreen({
-  onNavChange = () => {},
-  onClearHistory = () => {},
+  onNavChange = () => { },
+  onClearHistory = () => { },
   temporaryRecordings = true,
-  onTemporaryRecordingsChange = () => {},
+  onTemporaryRecordingsChange = () => { },
   onDeviceAnalysis = true,
-  onOnDeviceAnalysisChange = () => {},
+  onOnDeviceAnalysisChange = () => { },
   sessions = [],
 }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -20,7 +20,7 @@ export default function SettingsScreen({
   return (
     <div className="settings-screen">
       <header className="settings-header">
-        <p className="settings-eyebrow">VOICE TERRAIN</p>
+        <p className="settings-eyebrow">Resonance</p>
         <h1>Settings</h1>
         <p className="settings-subtitle">Make the app feel right for you.</p>
       </header>
@@ -61,9 +61,8 @@ export default function SettingsScreen({
 
               <button
                 type="button"
-                className={`settings-status-toggle ${
-                  onDeviceAnalysis ? "settings-status-toggle--on" : ""
-                }`}
+                className={`settings-status-toggle ${onDeviceAnalysis ? "settings-status-toggle--on" : ""
+                  }`}
                 onClick={() => onOnDeviceAnalysisChange(!onDeviceAnalysis)}
                 aria-pressed={onDeviceAnalysis}
               >
@@ -83,9 +82,8 @@ export default function SettingsScreen({
 
               <button
                 type="button"
-                className={`settings-status-toggle ${
-                  temporaryRecordings ? "settings-status-toggle--on" : ""
-                }`}
+                className={`settings-status-toggle ${temporaryRecordings ? "settings-status-toggle--on" : ""
+                  }`}
                 onClick={() =>
                   onTemporaryRecordingsChange(!temporaryRecordings)
                 }
@@ -158,7 +156,7 @@ export default function SettingsScreen({
             <div className="settings-icon">i</div>
 
             <div className="settings-card-content">
-              <strong>About Voice Terrain</strong>
+              <strong>About Resonance</strong>
               <span>Version 1.0 · Built with care</span>
             </div>
 
