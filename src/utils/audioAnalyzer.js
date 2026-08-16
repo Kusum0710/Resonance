@@ -488,6 +488,25 @@ export function analyzeAudioSession(audioMetrics = {}) {
   };
 }
 
+export const FEELING_LEVELS = [
+  { level: 1, label: 'Gloomy', emoji: '≡(▔﹏▔)≡', color: '#1a2b6b', bg: '#e8ecf8', glow: 'rgba(26, 43, 107, 0.3)' },
+  { level: 2, label: 'Low', emoji: '≡(▔﹏▔)≡', color: '#1e40af', bg: '#e9effd', glow: 'rgba(30, 64, 175, 0.3)' },
+  { level: 3, label: 'Somber', emoji: '(,,•́︿•̀,,)', color: '#2563eb', bg: '#eff4fe', glow: 'rgba(37, 99, 235, 0.3)' },
+  { level: 4, label: 'Muted', emoji: '(・_・;)', color: '#4f46e5', bg: '#f1f1ff', glow: 'rgba(79, 70, 229, 0.3)' },
+  { level: 5, label: 'Neutral', emoji: '(・ω・)', color: '#7c3aed', bg: '#f5efff', glow: 'rgba(124, 58, 237, 0.3)' },
+  { level: 6, label: 'Steady', emoji: '(•‿•)', color: '#9333ea', bg: '#faf0ff', glow: 'rgba(147, 51, 234, 0.3)' },
+  { level: 7, label: 'Calm', emoji: '(⌒‿⌒)', color: '#ca8a04', bg: '#fef9e7', glow: 'rgba(202, 138, 4, 0.3)' },
+  { level: 8, label: 'Light', emoji: '(✿◠‿◠)', color: '#65a30d', bg: '#f4fbe8', glow: 'rgba(101, 163, 13, 0.3)' },
+  { level: 9, label: 'Uplifted', emoji: '(＾◡＾)', color: '#16a34a', bg: '#edfcf2', glow: 'rgba(22, 163, 74, 0.3)' },
+  { level: 10, label: 'Happy', emoji: '(❁´◡`❁)', color: '#059669', bg: '#e6f9f0', glow: 'rgba(5, 150, 105, 0.3)' },
+];
+
+export function getFeelingByLevel(level) {
+  const num = Math.min(10, Math.max(1, Number(level) || 7));
+  return FEELING_LEVELS.find((f) => f.level === num) || FEELING_LEVELS[6];
+}
+
+
 export function normalizeSessionDetails(session = {}) {
   if (!session) return null;
 
