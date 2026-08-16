@@ -110,7 +110,6 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
     insightMessage,
     tryThisNext,
     analysisLines = [],
-    intensity,
     pitchHz,
     dayOfWeek,
     dateFormatted,
@@ -137,11 +136,6 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         {/* Header row: Eyebrow */}
         <div className="screenshot-card-header">
           <span className="screenshot-eyebrow">{eyebrowText}</span>
-          {typeof intensity === 'number' && (
-            <span className="screenshot-intensity">
-              Intensity: {intensity.toFixed(1)}/10
-            </span>
-          )}
         </div>
 
         {/* Biome Title & Tagline */}
