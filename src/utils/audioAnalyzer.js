@@ -307,16 +307,21 @@ export function createProsodyAnalyzer(audioContext, sourceNode, fftSize = 1024) 
         }
       }
 
-      const currentRms = meydaFeatures?.rms ?? rawRms;
-      const flux = Math.abs(currentRms - prevRms);
-      prevRms = currentRms;
+      const meydaRms = Number.isFinite(meydaFeatures?.rms) ? meydaFeatures.rms : null;
+      const currentRms = meydaRms ?? rawRms;
+      const safeRms = Number.isFinite(currentRms) ? currentRms : prevRms;
+      const flux = Math.abs(safeRms - prevRms);
+      prevRms = safeRms;
+
+      const meydaEnergy = Number.isFinite(meydaFeatures?.energy) ? meydaFeatures.energy : null;
+      const fallbackEnergy = Number.isFinite(rawRms) ? rawRms * 10 : 0;
 
       return {
         pitch: clarity > 0.6 && pitch >= 60 && pitch <= 500 ? pitch : null,
         clarity,
-        rms: currentRms,
-        energy: meydaFeatures?.energy ?? (rawRms * 10),
-        spectralFlux: flux,
+        rms: safeRms,
+        energy: meydaEnergy ?? fallbackEnergy,
+        spectralFlux: Number.isFinite(flux) ? flux : 0,
       };
     },
     destroy: () => {
@@ -408,7 +413,9 @@ export function analyzeAudioSession(audioMetrics = {}) {
     audioURL = null,
   } = audioMetrics;
 
-  const validPitches = pitchSamples.filter((p) => typeof p === 'number' && p > 60 && p < 500);
+  const isFiniteNum = (n) => typeof n === 'number' && Number.isFinite(n);
+
+  const validPitches = pitchSamples.filter((p) => isFiniteNum(p) && p > 60 && p < 500);
   const meanPitchHz = validPitches.length
     ? validPitches.reduce((a, b) => a + b, 0) / validPitches.length
     : 210;
@@ -417,9 +424,8 @@ export function analyzeAudioSession(audioMetrics = {}) {
   const pitchMax = validPitches.length ? Math.max(...validPitches) : 240;
   const pitchVarianceNorm = Math.min(1, Math.max(0, (pitchMax - pitchMin) / 160));
 
-  const validVols = (energySamples.length ? energySamples : volumeSamples).length
-    ? (energySamples.length ? energySamples : volumeSamples)
-    : [0.35, 0.45, 0.38];
+  const rawVols = (energySamples.length ? energySamples : volumeSamples).filter(isFiniteNum);
+  const validVols = rawVols.length ? rawVols : [0.35, 0.45, 0.38];
   const meanEnergy = validVols.reduce((a, b) => a + b, 0) / validVols.length;
   const volMin = Math.min(...validVols);
   const volMax = Math.max(...validVols);
@@ -428,8 +434,9 @@ export function analyzeAudioSession(audioMetrics = {}) {
   const silenceSamples = validVols.filter((v) => v < 0.12).length;
   const pauseDensity = Math.min(1, Math.max(0.05, silenceSamples / validVols.length));
   const speechRateNorm = Math.min(1, Math.max(0.1, 1 - pauseDensity * 0.8 + (meanEnergy * 0.3)));
-  const jitterNorm = fluxSamples.length
-    ? Math.min(1, Math.max(0, (fluxSamples.reduce((a, b) => a + b, 0) / fluxSamples.length) * 2))
+  const validFluxes = fluxSamples.filter(isFiniteNum);
+  const jitterNorm = validFluxes.length
+    ? Math.min(1, Math.max(0, (validFluxes.reduce((a, b) => a + b, 0) / validFluxes.length) * 2))
     : Math.min(1, Math.max(0.1, (pitchVarianceNorm * 0.4 + energyVariance * 0.6)));
 
   const nnInput = [
@@ -464,9 +471,28 @@ export function analyzeAudioSession(audioMetrics = {}) {
       ? `"${transcript.trim()}"`
       : 'Voice resonance and prosody contour captured.';
 
+  // Derived, human-readable metrics for the report/detail views. These use
+  // the same signals already computed above rather than re-deriving them,
+  // so exported data matches what actually drove the biome classification.
+  const intensity = Math.min(
+    10,
+    Math.max(0, (meanEnergy * 0.5 + pitchVarianceNorm * 0.3 + jitterNorm * 0.2) * 10),
+  );
+  const safeIntensity = Number.isFinite(intensity) ? intensity : 5;
+
+  const wordCount = transcript && transcript.trim().length
+    ? transcript.trim().split(/\s+/).length
+    : 0;
+  const minutes = durationSeconds / 60;
+  const speechRateWpm = wordCount && minutes > 0
+    ? Math.round(wordCount / minutes)
+    : Math.round(90 + speechRateNorm * 110);
+
   return {
     id: `session-${Date.now()}`,
+    date: now.toISOString().slice(0, 10),
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    timeFormatted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     dateFormatted: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
     dayOfWeek,
     timeAgo: 'Just now',
@@ -478,6 +504,12 @@ export function analyzeAudioSession(audioMetrics = {}) {
     tagline: biome.tagline,
     insightMessage: biome.insight,
     analysisLines,
+    intensity: Number(safeIntensity.toFixed(1)),
+    pitchHz: Math.round(meanPitchHz),
+    pitchVariance: Number(pitchVarianceNorm.toFixed(2)),
+    energyPct: Math.round(meanEnergy * 100),
+    speechRate: `${speechRateWpm} wpm`,
+    pauseDensity: `${Math.round(pauseDensity * 100)}%`,
     quote: defaultQuote,
     trigger: biome.insight,
     tryThisNext: biome.tryThisNext,

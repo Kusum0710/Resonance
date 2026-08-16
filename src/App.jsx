@@ -25,9 +25,18 @@ function App() {
     return localStorage.getItem("resonance_temporary_recordings") !== "false";
   });
 
+  const [onDeviceAnalysis, setOnDeviceAnalysis] = useState(() => {
+    return localStorage.getItem("resonance_on_device_analysis") !== "false";
+  });
+
   const handleTemporaryRecordingsChange = (enabled) => {
     setTemporaryRecordings(enabled);
     localStorage.setItem("resonance_temporary_recordings", String(enabled));
+  };
+
+  const handleOnDeviceAnalysisChange = (enabled) => {
+    setOnDeviceAnalysis(enabled);
+    localStorage.setItem("resonance_on_device_analysis", String(enabled));
   };
 
   const handleStartTalking = () => {
@@ -88,6 +97,9 @@ function App() {
           onClearHistory={handleClearHistory}
           temporaryRecordings={temporaryRecordings}
           onTemporaryRecordingsChange={handleTemporaryRecordingsChange}
+          onDeviceAnalysis={onDeviceAnalysis}
+          onOnDeviceAnalysisChange={handleOnDeviceAnalysisChange}
+          sessions={savedSessions}
         />
       ) : (
         <HomeScreen
