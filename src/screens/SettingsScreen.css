@@ -204,3 +204,88 @@ button.settings-card {
   background: #e6f1e7;
   color: #5b8f67;
 }
+
+/* Profile modal */
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.profile-modal {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  background: var(--color-card);
+  border-radius: 28px 28px 0 0;
+  padding: 28px 22px 32px;
+  box-sizing: border-box;
+  z-index: 10000;
+}
+
+.profile-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.profile-modal h2 {
+  margin: 0 0 28px;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.profile-field span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.profile-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid #ddd8cf;
+  border-radius: 14px;
+  background: #f8f6f1;
+  color: var(--color-text);
+  font-size: 16px;
+  outline: none;
+}
+
+.profile-field input:focus {
+  border-color: #8a9f8b;
+}
+
+.profile-save-button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--color-text);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
