@@ -6,14 +6,13 @@
   display: flex;
   flex-direction: column;
   background: var(--color-bg-soft, #f6f4ef);
-  padding: 24px 18px 90px;
-  overflow-x: hidden;
-  animation: fadeInScreen 0.3s ease-out forwards;
+  padding: 24px 18px 105px;
+  animation: fadeInScreen 0.25s ease-out forwards;
 }
 
 @keyframes fadeInScreen {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .timeline-header {
