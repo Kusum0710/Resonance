@@ -75,27 +75,31 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
   const [isActive, setIsActive] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [phaseSecondsLeft, setPhaseSecondsLeft] = useState(4);
+  const [breathVolumePercent, setBreathVolumePercent] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
 
   const canvasRef = useRef(null);
   const animFrameRef = useRef(null);
-  const breathStateRef = useRef({ isActive: false, phaseIndex: 0, techniqueKey: selectedKey, secondsLeft: 4 });
+  const phaseStartTimeRef = useRef(0);
+  const currentPhaseIndexRef = useRef(0);
+  const isActiveRef = useRef(false);
 
   const currentTechnique = MINDFULNESS_TECHNIQUES[selectedKey] || MINDFULNESS_TECHNIQUES['box-breathing'];
 
-  // Keep ref updated for 60fps landscape renderer
+  // Synchronize state refs for 60fps engine
   useEffect(() => {
-    breathStateRef.current = { isActive, phaseIndex, techniqueKey: selectedKey, secondsLeft: phaseSecondsLeft };
-  }, [isActive, phaseIndex, selectedKey, phaseSecondsLeft]);
+    isActiveRef.current = isActive;
+    currentPhaseIndexRef.current = phaseIndex;
+  }, [isActive, phaseIndex]);
 
-  // Natural Swelling Terrain / Light Faded Background Canvas
+  // Master 60fps Animation & Phase Engine
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
     let time = 0;
-    let currentHeightFactor = 0.0;
+    phaseStartTimeRef.current = performance.now();
 
     const particles = Array.from({ length: 45 }, () => ({
       x: Math.random(),
@@ -107,33 +111,87 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
 
     const render = () => {
       time += 0.016;
+      const now = performance.now();
       const width = (canvas.width = canvas.clientWidth || 430);
       const height = (canvas.height = canvas.clientHeight || 800);
 
-      const { isActive: active, phaseIndex: pIdx, techniqueKey: tKey, secondsLeft: sLeft } = breathStateRef.current;
+      const active = isActiveRef.current;
+      const pIdx = currentPhaseIndexRef.current;
+      const tKey = selectedKey;
       const tech = MINDFULNESS_TECHNIQUES[tKey] || MINDFULNESS_TECHNIQUES['box-breathing'];
       const theme = EXERCISE_THEMES[tKey] || EXERCISE_THEMES['box-breathing'];
-      const labels = tech.labels || [];
       const pattern = tech.pattern || [4, 4, 4, 4];
-      const currentLabel = (labels[pIdx] || '').toLowerCase();
-      const currentTotalSec = pattern[pIdx] || 4;
+      const currentPhaseDurationSec = pattern[pIdx] || 4;
 
-      const progressFraction = Math.max(0, Math.min(1, (currentTotalSec - sLeft + 1) / currentTotalSec));
+      let currentHeightFactor = 0.0;
 
-      let targetHeightFactor = 0.0;
       if (active && tech.type === 'breathing') {
-        if (currentLabel.includes('inhale')) {
-          targetHeightFactor = progressFraction;
-        } else if (currentLabel.includes('exhale')) {
-          targetHeightFactor = 1.0 - progressFraction;
+        const elapsedSec = (now - phaseStartTimeRef.current) / 1000;
+        const progressFraction = Math.max(0, Math.min(1, elapsedSec / currentPhaseDurationSec));
+
+        // Sub-second countdown integer display
+        const secondsRemaining = Math.max(1, Math.ceil(currentPhaseDurationSec - elapsedSec));
+        setPhaseSecondsLeft(secondsRemaining);
+
+        // Phase Advance State Machine: Advance phase strictly when duration completes
+        if (elapsedSec >= currentPhaseDurationSec) {
+          const nextIdx = (pIdx + 1) % pattern.length;
+          currentPhaseIndexRef.current = nextIdx;
+          phaseStartTimeRef.current = now;
+          setPhaseIndex(nextIdx);
+        }
+
+        // STRICT SEQUENCE ANIMATION ENGINE:
+        if (tKey === 'physiological-sigh') {
+          // Sequence: Phase 0: First Inhale (2s) -> Phase 1: Extra Inhale (1.5s) -> Phase 2: Hold (2s) -> Phase 3: Exhale (5s)
+          if (pIdx === 0) {
+            // First Inhale: Swells 0.00 -> 0.60 (Starts at 0!)
+            currentHeightFactor = progressFraction * 0.60;
+          } else if (pIdx === 1) {
+            // Extra Inhale: Swells 0.60 -> 1.00
+            currentHeightFactor = 0.60 + progressFraction * 0.40;
+          } else if (pIdx === 2) {
+            // Hold: Locks at 1.00 Peak
+            currentHeightFactor = 1.00;
+          } else {
+            // Exhale: Recedes 1.00 -> 0.00 (Ends at 0!)
+            currentHeightFactor = 1.00 - progressFraction;
+          }
+        } else if (tKey === 'box-breathing') {
+          // Sequence: Phase 0: Inhale (4s) -> Phase 1: Hold (4s) -> Phase 2: Exhale (4s) -> Phase 3: Hold (4s)
+          if (pIdx === 0) {
+            // Inhale: Swells 0.00 -> 1.00 (Starts at 0!)
+            currentHeightFactor = progressFraction;
+          } else if (pIdx === 1) {
+            // Hold Peak: Locks at 1.00 Peak
+            currentHeightFactor = 1.00;
+          } else if (pIdx === 2) {
+            // Exhale: Recedes 1.00 -> 0.00
+            currentHeightFactor = 1.00 - progressFraction;
+          } else {
+            // Hold Empty: Locks at 0.00 Base (Ends at 0!)
+            currentHeightFactor = 0.00;
+          }
         } else {
-          targetHeightFactor = 0.92 + Math.sin(time * 2) * 0.04;
+          // Standard Sequence (e.g. 4-7-8 Deep Rest or Resonant):
+          // Phase 0: Inhale -> Swells 0.00 -> 1.00 (Starts at 0!)
+          // Phase 1: Hold   -> Locks at 1.00 Peak for full Hold duration
+          // Phase 2: Exhale -> Recedes 1.00 -> 0.00 (Ends at 0!)
+          if (pIdx === 0) {
+            currentHeightFactor = progressFraction;
+          } else if (pIdx === 1) {
+            currentHeightFactor = 1.00;
+          } else {
+            currentHeightFactor = 1.00 - progressFraction;
+          }
         }
       } else {
-        targetHeightFactor = Math.sin(time * 1.2) * 0.05;
+        currentHeightFactor = Math.sin(time * 1.2) * 0.04;
       }
 
-      currentHeightFactor += (targetHeightFactor - currentHeightFactor) * 0.03;
+      // Update Breath Volume Percent for Progress Arc (Starts at 0%, ends at 0%)
+      const volumePct = active ? Math.max(0, Math.min(100, Math.round(currentHeightFactor * 100))) : 0;
+      setBreathVolumePercent(volumePct);
 
       // Background Sky Gradient
       const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
@@ -200,33 +258,12 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
     };
   }, [selectedKey]);
 
-  // Countdown timer loop per phase for breathing techniques
-  useEffect(() => {
-    if (!isActive || currentTechnique.type !== 'breathing') return;
-
-    const pattern = currentTechnique.pattern || [4, 4, 4, 4];
-    const currentPhaseDuration = pattern[phaseIndex] || 4;
-    setPhaseSecondsLeft(Math.ceil(currentPhaseDuration));
-
-    const countdownInterval = setInterval(() => {
-      setPhaseSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setPhaseIndex((p) => (p + 1) % pattern.length);
-          return Math.ceil(pattern[(phaseIndex + 1) % pattern.length] || 4);
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(countdownInterval);
-  }, [isActive, phaseIndex, currentTechnique]);
-
   const toggleExercise = () => {
     if (!isActive) {
       if (currentTechnique.type === 'breathing') {
-        const pattern = currentTechnique.pattern || [4, 4, 4, 4];
         setPhaseIndex(0);
-        setPhaseSecondsLeft(Math.ceil(pattern[0] || 4));
+        currentPhaseIndexRef.current = 0;
+        phaseStartTimeRef.current = performance.now();
       } else {
         setGroundingStep(0);
       }
@@ -244,6 +281,7 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
   };
 
   const currentGroundingQ = GROUNDING_QUESTIONS[groundingStep] || GROUNDING_QUESTIONS[0];
+  const totalPhases = (currentTechnique.labels || []).length;
 
   return (
     <div className="fullscreen-breathing-screen">
@@ -272,6 +310,7 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
               setSelectedKey(tech.id);
               setIsActive(false);
               setPhaseIndex(0);
+              currentPhaseIndexRef.current = 0;
               setGroundingStep(0);
             }}
           >
@@ -281,18 +320,49 @@ export default function BreathingExercise({ initialTechniqueKey = 'box-breathing
         ))}
       </div>
 
-      {/* Center Stage: Breathing or 5-4-3-2-1 Grounding */}
+      {/* Center Stage: Sequential Instruction-Driven Breathing Arc */}
       <main className="fullscreen-breathing-center">
         {currentTechnique.type === 'breathing' && (
           <div className="floating-breath-stage">
-            <span className="floating-phase-label">
-              {isActive ? currentTechnique.labels[phaseIndex] || 'Breathe' : 'Tap Start'}
-            </span>
+            {/* Step Order Pill */}
+            {isActive && (
+              <div className="step-order-badge">
+                Phase {phaseIndex + 1} of {totalPhases}
+              </div>
+            )}
 
-            {isActive ? (
-              <span className="floating-countdown-number">{phaseSecondsLeft}</span>
-            ) : (
-              <p className="floating-subtext">Rest &amp; breathe at your own rhythm</p>
+            {/* Living Breath Progress Arc Ring (Starts at 0%, ends at 0%) */}
+            <div className="living-breath-ring-wrap">
+              <svg className="living-breath-svg" viewBox="0 0 160 160">
+                <circle className="breath-track" cx="80" cy="80" r="70" />
+                <circle
+                  className="breath-progress"
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  style={{
+                    strokeDashoffset: 440 - (440 * breathVolumePercent) / 100,
+                    stroke: currentTechnique.color || '#6f93d1',
+                  }}
+                />
+              </svg>
+
+              <div className="living-breath-ring-content">
+                {isActive ? (
+                  <>
+                    <span className="floating-countdown-number">{phaseSecondsLeft}s</span>
+                    <span className="floating-phase-label">
+                      {currentTechnique.labels[phaseIndex] || 'Breathe'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="floating-phase-label">Tap Start</span>
+                )}
+              </div>
+            </div>
+
+            {!isActive && (
+              <p className="floating-subtext">Follow card instructions in exact sequence</p>
             )}
           </div>
         )}
