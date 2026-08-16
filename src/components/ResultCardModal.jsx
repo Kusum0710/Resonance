@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import BreathingExercise from './BreathingExercise';
 import { FEELING_LEVELS, getFeelingByLevel } from '../utils/audioAnalyzer';
-
 import './ResultCardModal.css';
 
-export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { }, isArchiveView = false }) {
+export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { } }) {
   const [isBreathingModalOpen, setIsBreathingModalOpen] = useState(false);
   const [feelingLevel, setFeelingLevel] = useState(sessionResult?.feelingLevel || 8);
 
@@ -34,11 +33,11 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
       const width = (canvas.width = canvas.clientWidth || 430);
       const height = (canvas.height = canvas.clientHeight || 800);
 
-      // Rich ambient gradient background
+      // Rich ambient gradient background matching biome palette
       const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-      bgGrad.addColorStop(0, '#fdf4ef');
-      bgGrad.addColorStop(0.4, '#f8ded3');
-      bgGrad.addColorStop(1, '#ecc3b2');
+      const bgColors = sessionResult?.bgGradient || ['#fdf4ef', '#f8ded3'];
+      bgGrad.addColorStop(0, bgColors[0] || '#fdf4ef');
+      bgGrad.addColorStop(1, bgColors[1] || '#f8ded3');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
@@ -46,9 +45,9 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
       const orbX = width * 0.5;
       const orbY = height * 0.22;
       const sunGrad = ctx.createRadialGradient(orbX, orbY, 10, orbX, orbY, 120);
-      sunGrad.addColorStop(0, 'rgba(255, 220, 200, 0.8)');
-      sunGrad.addColorStop(0.5, 'rgba(247, 162, 139, 0.35)');
-      sunGrad.addColorStop(1, 'rgba(247, 162, 139, 0)');
+      sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+      sunGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.35)');
+      sunGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = sunGrad;
       ctx.beginPath();
       ctx.arc(orbX, orbY, 120, 0, Math.PI * 2);
@@ -117,13 +116,7 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
     analysisLines = [],
     intensity,
     pitchHz,
-    dayOfWeek,
-    dateFormatted,
-    timestamp,
   } = sessionResult;
-
-  const archiveLabel = dayOfWeek || dateFormatted || timestamp || 'This Day';
-  const eyebrowText = isArchiveView ? `${archiveLabel}'s Biome` : "Today's Biome";
 
   return (
     <div className="screenshot-result-overlay">
@@ -141,7 +134,7 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
       <div className="screenshot-result-card">
         {/* Header row: Eyebrow */}
         <div className="screenshot-card-header">
-          <span className="screenshot-eyebrow">{eyebrowText}</span>
+          <span className="screenshot-eyebrow">TODAY'S BIOME</span>
           {typeof intensity === 'number' && (
             <span className="screenshot-intensity">
               Intensity: {intensity.toFixed(1)}/10
@@ -173,7 +166,11 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         <div className="screenshot-prosody-stats-row">
           <span className="result-stat-pill">Pitch: {pitchHz || 210} Hz</span>
           <span className="result-stat-pill">Duration: {sessionResult.duration || '20s'}</span>
+          {typeof sessionResult.energyPct === 'number' && (
+            <span className="result-stat-pill">Energy: {sessionResult.energyPct}%</span>
+          )}
         </div>
+
         {/* HOW ARE YOU FEELING QUESTION (10-level gradient bar) */}
         <div className="feeling-question-box">
           <div className="feeling-question-header">
@@ -235,22 +232,26 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         )}
 
         {/* Footer Actions */}
-        {isArchiveView ? (
-          <div className="screenshot-card-actions screenshot-card-actions--single">
-            <button type="button" className="screenshot-btn-primary" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        ) : (
-          <div className="screenshot-card-actions">
-            <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
-              Discard
-            </button>
-            <button type="button" className="screenshot-btn-primary" onClick={onSave}>
-              Save Reflection
-            </button>
-          </div>
-        )}
+        <div className="screenshot-card-actions">
+          <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
+            Discard
+          </button>
+          <button
+            type="button"
+            className="screenshot-btn-primary screenshot-btn-primary--journal"
+            onClick={() => {
+              const updatedPayload = {
+                ...sessionResult,
+                feeling: currentFeeling,
+                feelingLevel: currentFeeling.level,
+              };
+              onSave(updatedPayload);
+            }}
+          >
+            <span>📖</span>
+            <span>Log to Journal</span>
+          </button>
+        </div>
       </div>
 
       {/* Full-Screen Breathing Exercise View */}

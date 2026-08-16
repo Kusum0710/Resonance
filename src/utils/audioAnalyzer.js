@@ -20,9 +20,9 @@ export const MINDFULNESS_TECHNIQUES = {
     subtitle: 'Parasympathetic nervous system activation.',
     type: 'breathing',
     pattern: [4, 7, 8],
-    labels: ['Inhale 4s', 'Hold 7s', 'Exhale 8s'],
-    instruction: 'Inhale deeply 4s, hold breath 7s, exhale slowly 8s.',
-    color: '#a8a3eb',
+    labels: ['Inhale (4s)', 'Hold (7s)', 'Exhale (8s)'],
+    instruction: 'Inhale deeply through your nose for 4s, hold your breath for 7s, and exhale slowly through your mouth for 8s.',
+    color: '#7c79a8',
   },
   'box-breathing': {
     id: 'box-breathing',
@@ -31,31 +31,31 @@ export const MINDFULNESS_TECHNIQUES = {
     subtitle: 'Focus stabilization and stress reduction.',
     type: 'breathing',
     pattern: [4, 4, 4, 4],
-    labels: ['Inhale 4s', 'Hold 4s', 'Exhale 4s', 'Hold 4s'],
-    instruction: 'Inhale 4s, hold 4s, exhale 4s, hold 4s.',
-    color: '#57a6ff',
+    labels: ['Inhale (4s)', 'Hold (4s)', 'Exhale (4s)', 'Hold (4s)'],
+    instruction: 'Inhale 4s, hold 4s, exhale 4s, hold 4s. Rhythmic box breathing lowers heart rate and restores cognitive focus.',
+    color: '#e8a091',
   },
   'resonant-coherence': {
     id: 'resonant-coherence',
     icon: '🌊',
-    title: 'Resonant Coherence (5s - 2s - 5s)',
-    subtitle: 'Optimizes heart rate variability (HRV) with calm hold.',
+    title: 'Resonant Coherence (5.5s / 5.5s)',
+    subtitle: 'Optimizes heart rate variability (HRV).',
     type: 'breathing',
-    pattern: [5, 2, 5],
-    labels: ['Inhale 5s', 'Hold 2s', 'Exhale 5s'],
-    instruction: 'Inhale 5s, hold 2s, exhale 5s.',
-    color: '#5cd68a',
+    pattern: [5.5, 5.5],
+    labels: ['Inhale (5.5s)', 'Exhale (5.5s)'],
+    instruction: 'Inhale smoothly for 5.5 seconds, then exhale smoothly for 5.5 seconds. Balances sympathetic and parasympathetic tones.',
+    color: '#6f93d1',
   },
   'physiological-sigh': {
     id: 'physiological-sigh',
     icon: '⚡',
-    title: 'Physiological Sigh (2s - 1.5s - 2s - 5s)',
-    subtitle: 'Fast-acting double-inhalation with hold to immediately curb acute anxiety.',
+    title: 'Physiological Sigh',
+    subtitle: 'Fast-acting double-inhalation to immediately curb acute anxiety.',
     type: 'breathing',
-    pattern: [2, 1.5, 2, 5],
-    labels: ['First Inhale 2s', 'Extra Inhale 1.5s', 'Hold 2s', 'Exhale 5s'],
-    instruction: 'First Inhale 2s, Extra Inhale 1.5s, Hold 2s, Exhale 5s.',
-    color: '#ff7a59',
+    pattern: [2, 1.5, 5],
+    labels: ['Inhale Nose (2s)', 'Extra Inhale (1.5s)', 'Long Exhale Mouth (5s)'],
+    instruction: 'Take two quick inhales through your nose, then one long, relaxing exhale through your mouth to quickly pop off alveoli stress.',
+    color: '#d95e38',
   },
   'grounding-54321': {
     id: 'grounding-54321',
@@ -165,96 +165,210 @@ export const BIOMES_MAP = {
 
 export const BIOMES = BIOMES_MAP;
 
-// Neural Network Architecture: 6 -> 16 -> 9 -> 5 (Total parameters = 316)
-const NN_MODEL = {
-  W1: [
-    [1.8, 1.2, 0.6, 0.4, -1.4, -0.3],
-    [-1.6, -1.1, -1.4, -0.2, 0.6, -1.2],
-    [-0.8, -1.5, -0.9, -1.4, 2.1, -0.5],
-    [0.6, 1.4, 1.2, 2.2, -1.2, 1.9],
-    [0.4, 2.4, 1.9, 0.5, -0.7, 0.8],
-    [1.5, 0.8, 0.4, 0.8, -0.8, -0.4],
-    [-1.2, -1.3, -1.1, 0.1, 0.4, -0.9],
-    [-0.5, -1.4, -0.8, -1.2, 1.8, -0.2],
-    [0.8, 1.1, 1.5, 1.8, -0.9, 1.7],
-    [0.2, 2.1, 1.7, 0.3, -0.5, 0.9],
-    [1.3, 1.4, 0.8, 0.6, -1.1, -0.1],
-    [-1.4, -0.9, -1.3, -0.3, 0.8, -1.0],
-    [-0.7, -1.6, -1.0, -1.5, 2.0, -0.4],
-    [0.9, 1.2, 1.3, 2.0, -1.0, 1.8],
-    [0.5, 2.3, 2.0, 0.4, -0.8, 0.7],
-    [0.7, 0.3, 0.2, 0.2, 0.1, 0.1],
-  ],
-  b1: [0.1, -0.1, 0.2, -0.2, -0.3, 0.1, -0.2, 0.1, -0.1, -0.2, 0.2, -0.1, 0.2, -0.3, -0.2, 0.0],
-  W2: [
-    [1.2, -0.8, -0.4, 0.2, -0.3, 1.1, -0.6, -0.3, 0.1, -0.2, 1.0, -0.5, -0.3, 0.1, -0.2, 0.2],
-    [-0.8, 1.4, 0.1, -0.7, -0.9, -0.7, 1.3, 0.2, -0.6, -0.8, -0.8, 1.2, 0.1, -0.7, -0.9, -0.2],
-    [-0.5, 0.2, 1.5, -0.8, -1.1, -0.4, 0.3, 1.4, -0.7, -1.0, -0.5, 0.2, 1.5, -0.8, -1.0, 0.1],
-    [0.1, -0.7, -0.6, 1.6, 0.4, 0.2, -0.5, -0.7, 1.5, 0.3, 0.1, -0.6, -0.6, 1.6, 0.4, -0.1],
-    [-0.2, -0.9, -1.0, 0.4, 1.7, -0.1, -0.8, -0.9, 0.3, 1.6, -0.2, -0.8, -1.0, 0.3, 1.7, 0.0],
-    [1.0, -0.5, -0.2, 0.3, -0.1, 0.9, -0.4, -0.1, 0.2, -0.1, 0.9, -0.3, -0.2, 0.2, -0.1, 0.3],
-    [-0.6, 1.1, 0.3, -0.5, -0.7, -0.5, 1.0, 0.4, -0.4, -0.6, -0.6, 1.0, 0.3, -0.5, -0.7, -0.1],
-    [-0.3, 0.1, 1.3, -0.6, -0.8, -0.2, 0.2, 1.2, -0.5, -0.7, -0.3, 0.1, 1.3, -0.5, -0.8, 0.2],
-    [0.3, -0.6, -0.5, 1.4, 0.8, 0.4, -0.4, -0.4, 1.3, 0.7, 0.3, -0.5, -0.4, 1.4, 0.8, 0.0],
-  ],
-  b2: [0.1, 0.0, 0.2, -0.1, -0.2, 0.1, 0.0, 0.1, -0.1],
-  W3: [
-    [1.8, -1.2, -0.9, 0.2, -0.5, 1.5, -1.0, -0.7, 0.1],
-    [-1.2, 2.0, 0.4, -1.1, -1.4, -1.0, 1.7, 0.3, -1.0],
-    [-0.9, 0.3, 2.1, -1.2, -1.5, -0.8, 0.2, 1.9, -1.1],
-    [0.2, -1.0, -1.1, 2.2, 0.7, 0.3, -0.9, -1.0, 1.9],
-    [-0.4, -1.3, -1.4, 0.6, 2.4, -0.3, -1.1, -1.2, 0.5],
-  ],
-  b3: [0.1, 0.1, 0.1, 0.0, -0.1],
-  globalScale: 1.05,
-};
+function calculatePitchStats(pitchSamples = []) {
+  const cleanPitches = pitchSamples
+    .filter((p) => typeof p === 'number' && Number.isFinite(p) && p >= 65 && p <= 480)
+    .sort((a, b) => a - b);
 
-function neuralNetPredict(features) {
-  const h1 = new Float32Array(16);
-  for (let i = 0; i < 16; i++) {
-    let sum = NN_MODEL.b1[i];
-    for (let j = 0; j < 6; j++) {
-      sum += NN_MODEL.W1[i][j] * features[j];
-    }
-    h1[i] = sum > 0 ? sum : sum * 0.05;
+  if (cleanPitches.length < 4) {
+    return {
+      meanPitchHz: 205,
+      medianPitchHz: 205,
+      semitoneStdDev: 1.8,
+      pitchVarianceNorm: 0.35,
+      validCount: cleanPitches.length,
+    };
   }
 
-  const h2 = new Float32Array(9);
-  for (let i = 0; i < 9; i++) {
-    let sum = NN_MODEL.b2[i];
-    for (let j = 0; j < 16; j++) {
-      sum += NN_MODEL.W2[i][j] * h1[j];
-    }
-    h2[i] = sum > 0 ? sum : sum * 0.05;
-  }
+  // Outlier trimming: drop bottom 5% and top 5%
+  const trimStart = Math.floor(cleanPitches.length * 0.05);
+  const trimEnd = Math.ceil(cleanPitches.length * 0.95);
+  const trimmed = cleanPitches.slice(trimStart, trimEnd);
 
-  const logits = new Float32Array(5);
-  for (let i = 0; i < 5; i++) {
-    let sum = NN_MODEL.b3[i];
-    for (let j = 0; j < 9; j++) {
-      sum += NN_MODEL.W3[i][j] * h2[j];
-    }
-    logits[i] = sum * NN_MODEL.globalScale;
-  }
+  const meanPitchHz = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+  const medianPitchHz = trimmed[Math.floor(trimmed.length / 2)];
 
-  let maxLogit = -Infinity;
-  for (let i = 0; i < 5; i++) {
-    if (logits[i] > maxLogit) maxLogit = logits[i];
-  }
-  const exps = Array.from(logits).map((l) => Math.exp(l - maxLogit));
-  const sumExp = exps.reduce((a, b) => a + b, 0) || 1;
-  const probs = exps.map((e) => e / sumExp);
+  // Calculate variation in semitones relative to median F0 (logarithmic perception)
+  const semitoneDiffs = trimmed.map((f) => 12 * Math.log2(Math.max(30, f) / medianPitchHz));
+  const semitoneVariance =
+    semitoneDiffs.reduce((acc, val) => acc + Math.pow(val, 2), 0) / semitoneDiffs.length;
+  const semitoneStdDev = Math.sqrt(semitoneVariance);
 
-  const keys = ['mountain-range', 'gray-plateau', 'meadow', 'thunderstorm', 'volcanic'];
-  let maxIdx = 0;
-  for (let i = 1; i < 5; i++) {
-    if (probs[i] > probs[maxIdx]) maxIdx = i;
-  }
+  // Calibration scale:
+  // Monotone / Flat: < 1.4 ST -> norm < 0.25
+  // Calm / Meadow: 1.4 - 2.5 ST -> norm ~ 0.30 - 0.50
+  // Melodic / Animated: > 2.8 ST -> norm > 0.60
+  const pitchVarianceNorm = Math.min(1, Math.max(0.05, (semitoneStdDev - 0.6) / 4.0));
 
   return {
-    biomeKey: keys[maxIdx],
+    meanPitchHz: Math.round(meanPitchHz),
+    medianPitchHz: Math.round(medianPitchHz),
+    semitoneStdDev: Number(semitoneStdDev.toFixed(2)),
+    pitchVarianceNorm: Number(pitchVarianceNorm.toFixed(3)),
+    validCount: trimmed.length,
+  };
+}
+
+function calculateRhythmAndCadence(volumeSamples = [], durationSeconds = 10, transcript = '') {
+  const vols = volumeSamples.length
+    ? volumeSamples.map((v) => Math.min(1, Math.max(0, v)))
+    : [0.2, 0.25, 0.22];
+
+  const sortedVols = [...vols].sort((a, b) => a - b);
+  // Estimate ambient noise floor from 15th percentile
+  const ambientFloor = sortedVols[Math.floor(sortedVols.length * 0.15)] || 0.05;
+  const speechThreshold = Math.max(0.08, ambientFloor + 0.06);
+
+  const silenceFrames = vols.filter((v) => v < speechThreshold).length;
+  const pauseDensity = Math.min(0.85, Math.max(0.05, silenceFrames / vols.length));
+
+  // Cadence estimation
+  const cleanText = (transcript || '').trim();
+  const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
+  const durationMin = Math.max(0.08, durationSeconds / 60);
+
+  let wpm;
+  if (wordCount >= 3) {
+    wpm = Math.round(wordCount / durationMin);
+  } else {
+    // Syllable pulse detection with energy peak picking
+    let syllables = 0;
+    const windowSize = Math.max(2, Math.floor(vols.length / (durationSeconds * 8 || 80)));
+    for (let i = windowSize; i < vols.length - windowSize; i += windowSize) {
+      const cur = vols[i];
+      if (cur > speechThreshold * 1.35 && cur > vols[i - windowSize] && cur > vols[i + windowSize]) {
+        syllables++;
+      }
+    }
+    const estimatedWords = Math.max(1, Math.round(syllables * 0.72));
+    wpm = Math.round(estimatedWords / durationMin);
+  }
+
+  // Clamp to realistic human conversational range (60 - 240 WPM)
+  const clampedWpm = Math.max(65, Math.min(230, wpm || 128));
+
+  // Normalized speech rate scale:
+  // < 100 WPM = very slow/relaxed (0.05 - 0.25)
+  // 110 - 140 WPM = steady conversational (0.35 - 0.55)
+  // 150 - 175 WPM = animated/active (0.60 - 0.75)
+  // > 180 WPM = rushed/rapid (0.80 - 1.0)
+  const speechRateNorm = Math.min(1, Math.max(0.05, (clampedWpm - 65) / 140));
+
+  return {
+    wpm: clampedWpm,
+    speechRateNorm: Number(speechRateNorm.toFixed(3)),
+    pauseDensity: Number(pauseDensity.toFixed(3)),
+    ambientFloor: Number(ambientFloor.toFixed(3)),
+  };
+}
+
+function calculateEnergyMetrics(volumeSamples = [], fluxSamples = []) {
+  const vols = volumeSamples.length
+    ? volumeSamples.map((v) => Math.min(1, Math.max(0, v)))
+    : [0.25, 0.35, 0.28];
+
+  const meanEnergy = vols.reduce((a, b) => a + b, 0) / vols.length;
+  const sorted = [...vols].sort((a, b) => a - b);
+  const peakEnergy = sorted[Math.floor(sorted.length * 0.95)] || meanEnergy;
+  const energyVariance = Math.min(1, Math.max(0.05, (peakEnergy - sorted[0]) * 1.5));
+
+  const validFluxes = fluxSamples.filter((f) => typeof f === 'number' && Number.isFinite(f));
+  const meanFlux = validFluxes.length
+    ? validFluxes.reduce((a, b) => a + b, 0) / validFluxes.length
+    : 0.1;
+  const jitterNorm = Math.min(1, Math.max(0.05, meanFlux * 2.2));
+
+  return {
+    meanEnergy: Number(meanEnergy.toFixed(3)),
+    peakEnergy: Number(peakEnergy.toFixed(3)),
+    energyVariance: Number(energyVariance.toFixed(3)),
+    jitterNorm: Number(jitterNorm.toFixed(3)),
+  };
+}
+
+function classifyTerrainBiome({ pitchStats, rhythm, energy }) {
+  const { pitchVarianceNorm, semitoneStdDev } = pitchStats;
+  const { speechRateNorm, pauseDensity, wpm } = rhythm;
+  const { meanEnergy, peakEnergy, energyVariance, jitterNorm } = energy;
+
+  // Balanced likelihood scoring for all 5 distinct biomes:
+  // 1. Meadow: Slow/moderate cadence, spacious restful pauses, gentle volume, relaxed vocal tone
+  let meadowScore = 0;
+  meadowScore += (1 - speechRateNorm) * 3.2;
+  meadowScore += pauseDensity * 2.8;
+  meadowScore += (1 - Math.max(0, meanEnergy - 0.35)) * 2.0;
+  meadowScore += (1 - jitterNorm) * 1.5;
+  if (wpm <= 125) meadowScore += 1.2;
+  if (pauseDensity >= 0.22) meadowScore += 1.0;
+  if (meanEnergy < 0.35) meadowScore += 0.8;
+
+  // 2. Gray Plateau: Low melodic variation (monotone), flat energy envelope, muted cadence, routine/tired
+  let plateauScore = 0;
+  plateauScore += (1 - pitchVarianceNorm) * 3.5;
+  plateauScore += (1 - energyVariance) * 2.2;
+  plateauScore += (1 - jitterNorm) * 1.6;
+  plateauScore += (1 - Math.abs(speechRateNorm - 0.45)) * 1.2;
+  if (semitoneStdDev < 1.7) plateauScore += 1.8;
+  if (energyVariance < 0.3) plateauScore += 1.2;
+  if (meanEnergy < 0.42) plateauScore += 0.8;
+
+  // 3. Mountain Range: High pitch dynamic variance, animated melodic contours, buoyant energy, expressive
+  let mountainScore = 0;
+  mountainScore += pitchVarianceNorm * 3.4;
+  mountainScore += (1 - Math.abs(meanEnergy - 0.45)) * 2.0;
+  mountainScore += energyVariance * 1.4;
+  mountainScore += (1 - Math.abs(speechRateNorm - 0.55)) * 1.2;
+  if (semitoneStdDev >= 2.6) mountainScore += 1.8;
+  if (pitchVarianceNorm > 0.55) mountainScore += 1.2;
+  if (pauseDensity >= 0.15 && pauseDensity <= 0.4) mountainScore += 0.6;
+
+  // 4. Thunderstorm: Genuinely fast speech rate (>155 WPM), low pause density (<15%), micro-jitter, urgency
+  let thunderScore = 0;
+  thunderScore += speechRateNorm * 3.6;
+  thunderScore += (1 - pauseDensity) * 3.0;
+  thunderScore += jitterNorm * 2.2;
+  thunderScore += energyVariance * 1.2;
+  if (wpm >= 165) thunderScore += 2.0;
+  if (pauseDensity < 0.14) thunderScore += 1.5;
+  if (jitterNorm > 0.45) thunderScore += 0.8;
+
+  // 5. Volcanic: High acoustic power, explosive volume bursts (peakEnergy > 0.65), pressed vocal intensity
+  let volcanicScore = 0;
+  volcanicScore += meanEnergy * 3.8;
+  volcanicScore += peakEnergy * 3.0;
+  volcanicScore += energyVariance * 2.4;
+  volcanicScore += jitterNorm * 1.2;
+  if (peakEnergy > 0.62) volcanicScore += 2.2;
+  if (meanEnergy > 0.52) volcanicScore += 1.5;
+
+  const scoreMap = [
+    { key: 'meadow', score: meadowScore },
+    { key: 'gray-plateau', score: plateauScore },
+    { key: 'mountain-range', score: mountainScore },
+    { key: 'thunderstorm', score: thunderScore },
+    { key: 'volcanic', score: volcanicScore },
+  ];
+
+  // Softmax probabilities
+  const maxScore = Math.max(...scoreMap.map((s) => s.score));
+  const exps = scoreMap.map((s) => ({
+    key: s.key,
+    exp: Math.exp(s.score - maxScore),
+  }));
+  const sumExp = exps.reduce((a, b) => a + b.exp, 0) || 1;
+  const probs = {};
+  exps.forEach((e) => {
+    probs[e.key] = Number((e.exp / sumExp).toFixed(3));
+  });
+
+  scoreMap.sort((a, b) => b.score - a.score);
+  const winnerKey = scoreMap[0].key;
+
+  return {
+    biomeKey: winnerKey,
     probabilities: probs,
-    confidence: probs[maxIdx],
+    confidence: probs[winnerKey],
+    scores: scoreMap,
   };
 }
 
@@ -307,21 +421,16 @@ export function createProsodyAnalyzer(audioContext, sourceNode, fftSize = 1024) 
         }
       }
 
-      const meydaRms = Number.isFinite(meydaFeatures?.rms) ? meydaFeatures.rms : null;
-      const currentRms = meydaRms ?? rawRms;
-      const safeRms = Number.isFinite(currentRms) ? currentRms : prevRms;
-      const flux = Math.abs(safeRms - prevRms);
-      prevRms = safeRms;
-
-      const meydaEnergy = Number.isFinite(meydaFeatures?.energy) ? meydaFeatures.energy : null;
-      const fallbackEnergy = Number.isFinite(rawRms) ? rawRms * 10 : 0;
+      const currentRms = meydaFeatures?.rms ?? rawRms;
+      const flux = Math.abs(currentRms - prevRms);
+      prevRms = currentRms;
 
       return {
         pitch: clarity > 0.6 && pitch >= 60 && pitch <= 500 ? pitch : null,
         clarity,
-        rms: safeRms,
-        energy: meydaEnergy ?? fallbackEnergy,
-        spectralFlux: Number.isFinite(flux) ? flux : 0,
+        rms: currentRms,
+        energy: meydaFeatures?.energy ? Math.min(1, meydaFeatures.energy / 5) : Math.min(1, rawRms * 3),
+        spectralFlux: Math.min(1, flux * 4),
       };
     },
     destroy: () => {
@@ -413,86 +522,65 @@ export function analyzeAudioSession(audioMetrics = {}) {
     audioURL = null,
   } = audioMetrics;
 
-  const isFiniteNum = (n) => typeof n === 'number' && Number.isFinite(n);
+  const pitchStats = calculatePitchStats(pitchSamples);
+  const rhythm = calculateRhythmAndCadence(
+    volumeSamples.length ? volumeSamples : energySamples,
+    durationSeconds,
+    transcript
+  );
+  const energy = calculateEnergyMetrics(
+    volumeSamples.length ? volumeSamples : energySamples,
+    fluxSamples
+  );
 
-  const validPitches = pitchSamples.filter((p) => isFiniteNum(p) && p > 60 && p < 500);
-  const meanPitchHz = validPitches.length
-    ? validPitches.reduce((a, b) => a + b, 0) / validPitches.length
-    : 210;
-
-  const pitchMin = validPitches.length ? Math.min(...validPitches) : 180;
-  const pitchMax = validPitches.length ? Math.max(...validPitches) : 240;
-  const pitchVarianceNorm = Math.min(1, Math.max(0, (pitchMax - pitchMin) / 160));
-
-  const rawVols = (energySamples.length ? energySamples : volumeSamples).filter(isFiniteNum);
-  const validVols = rawVols.length ? rawVols : [0.35, 0.45, 0.38];
-  const meanEnergy = validVols.reduce((a, b) => a + b, 0) / validVols.length;
-  const volMin = Math.min(...validVols);
-  const volMax = Math.max(...validVols);
-  const energyVariance = Math.min(1, Math.max(0, (volMax - volMin) * 1.5));
-
-  const silenceSamples = validVols.filter((v) => v < 0.12).length;
-  const pauseDensity = Math.min(1, Math.max(0.05, silenceSamples / validVols.length));
-  const speechRateNorm = Math.min(1, Math.max(0.1, 1 - pauseDensity * 0.8 + (meanEnergy * 0.3)));
-  const validFluxes = fluxSamples.filter(isFiniteNum);
-  const jitterNorm = validFluxes.length
-    ? Math.min(1, Math.max(0, (validFluxes.reduce((a, b) => a + b, 0) / validFluxes.length) * 2))
-    : Math.min(1, Math.max(0.1, (pitchVarianceNorm * 0.4 + energyVariance * 0.6)));
-
-  const nnInput = [
-    pitchVarianceNorm,
-    meanEnergy,
-    energyVariance,
-    speechRateNorm,
-    pauseDensity,
-    jitterNorm,
-  ];
-
-  const nnResult = neuralNetPredict(nnInput);
-  const biomeKey = nnResult.biomeKey;
-  const biome = BIOMES_MAP[biomeKey] || BIOMES_MAP['volcanic'];
+  const classification = classifyTerrainBiome({ pitchStats, rhythm, energy });
+  const biomeKey = classification.biomeKey;
+  const biome = BIOMES_MAP[biomeKey] || BIOMES_MAP['meadow'];
 
   const analysisLines = generateSelfAnalysisNote(transcript, biomeKey, {
-    meanPitchHz,
-    meanEnergy,
-    pitchVarianceNorm,
+    meanPitchHz: pitchStats.meanPitchHz,
+    meanEnergy: energy.meanEnergy,
+    pitchVarianceNorm: pitchStats.pitchVarianceNorm,
+    semitoneStdDev: pitchStats.semitoneStdDev,
+    wpm: rhythm.wpm,
+    pauseDensity: rhythm.pauseDensity,
   });
 
-  console.log('biomeKey:', biomeKey);
-  console.log('transcript received:', JSON.stringify(transcript));
-  console.log('analysisLines computed:', analysisLines);
+  console.log('Robust Classified Biome:', biomeKey, {
+    confidence: classification.confidence,
+    probabilities: classification.probabilities,
+    scores: classification.scores,
+    pitchStats,
+    rhythm,
+    energy,
+  });
 
   const now = new Date();
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayOfWeek = days[now.getDay()];
 
+  const cleanTranscript = (transcript || '').trim();
   const defaultQuote =
-    transcript && transcript.trim().length > 0
-      ? `"${transcript.trim()}"`
+    cleanTranscript.length > 0
+      ? `"${cleanTranscript}"`
       : 'Voice resonance and prosody contour captured.';
 
-  // Derived, human-readable metrics for the report/detail views. These use
-  // the same signals already computed above rather than re-deriving them,
-  // so exported data matches what actually drove the biome classification.
-  const intensity = Math.min(
-    10,
-    Math.max(0, (meanEnergy * 0.5 + pitchVarianceNorm * 0.3 + jitterNorm * 0.2) * 10),
+  // Intensity score 1.0 - 10.0 scaled according to acoustic energy, pitch dynamics, and speed
+  const calculatedIntensity = Number(
+    Math.min(
+      9.8,
+      Math.max(
+        1.8,
+        energy.meanEnergy * 5.0 +
+        pitchStats.pitchVarianceNorm * 2.5 +
+        rhythm.speechRateNorm * 2.5
+      )
+    ).toFixed(1)
   );
-  const safeIntensity = Number.isFinite(intensity) ? intensity : 5;
-
-  const wordCount = transcript && transcript.trim().length
-    ? transcript.trim().split(/\s+/).length
-    : 0;
-  const minutes = durationSeconds / 60;
-  const speechRateWpm = wordCount && minutes > 0
-    ? Math.round(wordCount / minutes)
-    : Math.round(90 + speechRateNorm * 110);
 
   return {
     id: `session-${Date.now()}`,
-    date: now.toISOString().slice(0, 10),
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    timeFormatted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     dateFormatted: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
     dayOfWeek,
     timeAgo: 'Just now',
@@ -504,19 +592,23 @@ export function analyzeAudioSession(audioMetrics = {}) {
     tagline: biome.tagline,
     insightMessage: biome.insight,
     analysisLines,
-    intensity: Number(safeIntensity.toFixed(1)),
-    pitchHz: Math.round(meanPitchHz),
-    pitchVariance: Number(pitchVarianceNorm.toFixed(2)),
-    energyPct: Math.round(meanEnergy * 100),
-    speechRate: `${speechRateWpm} wpm`,
-    pauseDensity: `${Math.round(pauseDensity * 100)}%`,
+    transcript: cleanTranscript,
+    notes: cleanTranscript,
     quote: defaultQuote,
     trigger: biome.insight,
     tryThisNext: biome.tryThisNext,
     mindfulness: biome.mindfulness,
     bgGradient: biome.bgGradient,
     terrainColors: biome.terrainColors,
+    pitchHz: pitchStats.meanPitchHz,
+    pitchVariance: Number(pitchStats.pitchVarianceNorm.toFixed(2)),
+    semitoneStdDev: pitchStats.semitoneStdDev,
+    energyPct: Math.round(energy.meanEnergy * 100),
+    intensity: calculatedIntensity,
+    speechRate: `${rhythm.wpm} wpm`,
+    pauseDensity: `${Math.round(rhythm.pauseDensity * 100)}%`,
     audioURL,
+    probabilities: classification.probabilities,
   };
 }
 
@@ -538,36 +630,50 @@ export function getFeelingByLevel(level) {
   return FEELING_LEVELS.find((f) => f.level === num) || FEELING_LEVELS[6];
 }
 
-
 export function normalizeSessionDetails(session = {}) {
   if (!session) return null;
-
-  if (session.insightMessage && session.biomeName) return session;
 
   const paletteKey = session.palette || session.biomeKey || 'volcanic';
   const biome = BIOMES_MAP[paletteKey] || BIOMES_MAP['volcanic'];
 
+  const rawNotes = session.notes || session.transcript || (session.quote ? session.quote.replace(/^"|"$/g, '') : '') || '';
+
   return {
+    ...session,
     id: session.id || `session-${Date.now()}`,
-    timestamp: session.timeAgo || 'Just now',
-    dateFormatted: session.timeAgo || 'Today',
+    timestamp: session.timeFormatted || session.timestamp || session.timeAgo || 'Just now',
+    dateFormatted: session.dateFormatted || session.timeAgo || 'Today',
     dayOfWeek: session.dayOfWeek || 'Today',
-    durationFormatted: session.duration || '25s',
+    durationFormatted: session.durationFormatted || session.duration || '25s',
     duration: session.duration || '25s',
     biomeKey: paletteKey,
-    biomeName: biome.name,
+    biomeName: session.biomeName || biome.name,
     palette: paletteKey,
-    tagline: biome.tagline,
-    insightMessage: session.quote
+    tagline: session.tagline || biome.tagline,
+    insightMessage: session.insightMessage || (session.quote
       ? `"${session.quote}" — ${session.trigger || biome.insight}`
-      : biome.insight,
-    quote: session.quote || 'Voice reflection recorded.',
+      : biome.insight),
+    analysisLines: session.analysisLines || [
+      'Voice prosody dynamic contours and pitch fluctuations captured.',
+      `Resonant power and harmonic stability marked your vocal reflection.`,
+      'Self-note: Regular vocal check-ins cultivate deeper emotional awareness.'
+    ],
+    transcript: session.transcript || rawNotes,
+    notes: rawNotes,
+    quote: session.quote || (rawNotes ? `"${rawNotes}"` : 'Voice reflection recorded.'),
     trigger: session.trigger || biome.insight,
-    tryThisNext: biome.tryThisNext,
-    mindfulness: biome.mindfulness,
-    bgGradient: biome.bgGradient,
-    terrainColors: biome.terrainColors,
+    tryThisNext: session.tryThisNext || biome.tryThisNext,
+    mindfulness: session.mindfulness || biome.mindfulness,
+    bgGradient: session.bgGradient || biome.bgGradient,
+    terrainColors: session.terrainColors || biome.terrainColors,
+    pitchHz: session.pitchHz || 210,
+    intensity: session.intensity || 5.0,
+    energyPct: session.energyPct || 50,
+    speechRate: session.speechRate || '140 wpm',
+    pauseDensity: session.pauseDensity || '20%',
     audioURL: session.audioURL || null,
+    feeling: session.feeling || (session.feelingLevel ? getFeelingByLevel(session.feelingLevel) : null),
+    feelingLevel: session.feelingLevel || (session.feeling ? session.feeling.level : null),
   };
 }
 
