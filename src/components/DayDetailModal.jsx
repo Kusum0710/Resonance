@@ -11,6 +11,7 @@ export default function DayDetailModal({ session, onClose }) {
       sessionResult={normalizedPayload}
       onClose={onClose}
       onSave={onClose}
+      isArchiveView
     />
   );
 }

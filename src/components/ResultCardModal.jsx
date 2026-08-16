@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import BreathingExercise from './BreathingExercise';
 import './ResultCardModal.css';
 
-export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { } }) {
+export default function ResultCardModal({ sessionResult, onSave = () => { }, onClose = () => { }, isArchiveView = false }) {
   const [isBreathingModalOpen, setIsBreathingModalOpen] = useState(false);
   const bgCanvasRef = useRef(null);
   const animFrameRef = useRef(null);
@@ -112,7 +112,13 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
     analysisLines = [],
     intensity,
     pitchHz,
+    dayOfWeek,
+    dateFormatted,
+    timestamp,
   } = sessionResult;
+
+  const archiveLabel = dayOfWeek || dateFormatted || timestamp || 'This Day';
+  const eyebrowText = isArchiveView ? `${archiveLabel}'s Biome` : "Today's Biome";
 
   return (
     <div className="screenshot-result-overlay">
@@ -130,7 +136,7 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
       <div className="screenshot-result-card">
         {/* Header row: Eyebrow */}
         <div className="screenshot-card-header">
-          <span className="screenshot-eyebrow">TODAY'S BIOME</span>
+          <span className="screenshot-eyebrow">{eyebrowText}</span>
           {typeof intensity === 'number' && (
             <span className="screenshot-intensity">
               Intensity: {intensity.toFixed(1)}/10
@@ -178,14 +184,22 @@ export default function ResultCardModal({ sessionResult, onSave = () => { }, onC
         )}
 
         {/* Footer Actions */}
-        <div className="screenshot-card-actions">
-          <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
-            Discard
-          </button>
-          <button type="button" className="screenshot-btn-primary" onClick={onSave}>
-            Save Reflection
-          </button>
-        </div>
+        {isArchiveView ? (
+          <div className="screenshot-card-actions screenshot-card-actions--single">
+            <button type="button" className="screenshot-btn-primary" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        ) : (
+          <div className="screenshot-card-actions">
+            <button type="button" className="screenshot-btn-secondary" onClick={onClose}>
+              Discard
+            </button>
+            <button type="button" className="screenshot-btn-primary" onClick={onSave}>
+              Save Reflection
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Full-Screen Breathing Exercise View */}

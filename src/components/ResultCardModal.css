@@ -229,6 +229,14 @@
   padding-top: 8px;
 }
 
+.screenshot-card-actions--single {
+  justify-content: center;
+}
+
+.screenshot-card-actions--single .screenshot-btn-primary {
+  width: 100%;
+}
+
 .screenshot-btn-secondary {
   background: transparent;
   border: 1px solid #e0d8cd;
