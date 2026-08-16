@@ -1,3 +1,4 @@
+import { useState } from "react";
 import BottomNav from "../components/BottomNav";
 import "./SettingsScreen.css";
 
@@ -7,6 +8,11 @@ export default function SettingsScreen({
   temporaryRecordings = true,
   onTemporaryRecordingsChange = () => {},
 }) {
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [name, setName] = useState(
+    () => localStorage.getItem("resonance_name") || "Rakshita",
+  );
+
   return (
     <div className="settings-screen">
       <header className="settings-header">
@@ -23,11 +29,12 @@ export default function SettingsScreen({
           <button
             type="button"
             className="settings-card settings-card--profile"
+            onClick={() => setIsProfileOpen(true)}
           >
-            <div className="profile-avatar">R</div>
+            <div className="profile-avatar">{name.charAt(0).toUpperCase()}</div>
 
             <div className="settings-card-content">
-              <strong>My profile</strong>
+              <strong>{name}</strong>
               <span>Personalise your Voice Terrain</span>
             </div>
 
@@ -140,6 +147,48 @@ export default function SettingsScreen({
           Your voice is personal. Your reflections belong to you.
         </p>
       </main>
+
+      {isProfileOpen && (
+        <div className="profile-modal-overlay">
+          <div className="profile-modal">
+            <button
+              type="button"
+              className="profile-modal-close"
+              onClick={() => setIsProfileOpen(false)}
+              aria-label="Close profile"
+            >
+              ×
+            </button>
+
+            <p className="settings-section-title">PROFILE</p>
+            <h2>Your profile</h2>
+
+            <label className="profile-field">
+              <span>Your name</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+              />
+            </label>
+
+            <button
+              type="button"
+              className="profile-save-button"
+              onClick={() => {
+                localStorage.setItem(
+                  "resonance_name",
+                  name.trim() || "Unknown",
+                );
+                setIsProfileOpen(false);
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
 
       <BottomNav active="settings" onChange={onNavChange} />
     </div>

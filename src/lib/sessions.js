@@ -196,7 +196,6 @@ export function saveSessionToStorage(newSession) {
     return [newSession, ...initialSessions];
   }
 }
-
 export function getPast7DaysSessions(allSessions = []) {
   // Return the most recent 7 distinct days or sessions
   if (!allSessions || !allSessions.length) return initialSessions.slice(0, 7);
