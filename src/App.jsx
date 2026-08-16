@@ -97,6 +97,7 @@ function App() {
           onClearHistory={handleClearHistory}
           temporaryRecordings={temporaryRecordings}
           onTemporaryRecordingsChange={handleTemporaryRecordingsChange}
+          sessions={savedSessions}
         />
       ) : (
         <HomeScreen
